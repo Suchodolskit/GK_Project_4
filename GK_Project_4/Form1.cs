@@ -42,8 +42,6 @@ namespace GK_Project_4
 
             // Flushing the back buffer into the front buffer
             device.Present();
-
-            pictureBox1.Image = device.bmp.Bitmap;
         }
 
         private async void Form1_Load(object sender, EventArgs e)
@@ -51,7 +49,7 @@ namespace GK_Project_4
             // Choose the back buffer resolution here
             DirectBitmap bmp = new DirectBitmap(640, 480);
 
-            device = new Device(bmp);
+            device = new Device(bmp,pictureBox1);
 
             pictureBox1.Image = bmp.Bitmap;
 
@@ -66,6 +64,11 @@ namespace GK_Project_4
             Rendring.Interval = 1;
             Rendring.Start();
 
-        } 
+        }
+
+        private void pictureBox1_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }

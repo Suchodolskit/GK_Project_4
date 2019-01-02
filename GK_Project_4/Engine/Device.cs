@@ -6,78 +6,86 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using SharpDX;
 
 namespace SoftEngine
 {
     public class Device
     {
+        //bufor służący do rysowania
         private byte[] backBuffer;
+
+        //bitmapa do rysowania
         public DirectBitmap bmp;
+
+        //buffor głębokości - z-buffor
         private readonly float[] depthBuffer;
+
+        //długość i szerokość obszaru renderowania
         private readonly int renderWidth;
         private readonly int renderHeight;
 
-        public Device(DirectBitmap bmp)
+        private PictureBox picturebox;
+
+        public Device(DirectBitmap bmp, PictureBox p)
         {
             this.bmp = bmp;
             renderWidth = bmp.Width;
             renderHeight = bmp.Height;
+            picturebox = p;
 
-            // the back buffer size is equal to the number of pixels to draw
-            // on screen (width*height) * 4 (R,G,B & Alpha values). 
+            //potrzeba * 4 bo jeden pixel reprezetowany jako ARGB na 4 bajtach 
             backBuffer = new byte[bmp.Width * bmp.Height * 4];
+
             depthBuffer = new float[bmp.Width * bmp.Height];
         }
 
-        // This method is called to clear the back buffer with a specific color
+        // Metoda czyści bufory na zadany kolor
         public void Clear(byte a, byte r, byte g, byte b)
         {
-            // Clearing Back Buffer
+            // czyszczenie back buffora
             for (var index = 0; index < backBuffer.Length; index += 4)
             {
-                // BGRA is used by Windows instead by RGBA in HTML5
                 backBuffer[index] = a;
                 backBuffer[index + 1] = r;
                 backBuffer[index + 2] = g;
                 backBuffer[index + 3] = b;
             }
 
-            // Clearing Depth Buffer
+            // czyszczenie depth buffora
             for (var index = 0; index < depthBuffer.Length; index++)
             {
                 depthBuffer[index] = float.MaxValue;
             }
         }
 
-        // Once everything is ready, we can flush the back buffer
-        // into the front buffer. 
+        //przepisuje wartość backbuffora do bitmapy a bitmape do picrureboxa 
         public void Present()
         {
             using (var stream = new MemoryStream(bmp.Bits))
             {
-                // writing our byte[] back buffer into our WriteableBitmap stream
+                // przepisuje bajty z buffora na bitmapę
                 stream.Write(backBuffer, 0, backBuffer.Length);
             }
-            // request a redraw of the entire bitmap
-            
-            //bmp.Invalidate();
+
+            //przypisuje bitmape do pictureboxa/przerysowuje
+            picturebox.Image = bmp.Bitmap;
         }
 
-        // Called to put a pixel on screen at a specific X,Y coordinates
+        // wrzuca pixel o odpowiednich współrzędnych do backbuffora (jeśli jest takowa potrzeba)
         public void PutPixel(int x, int y, float z, System.Drawing.Color color)
         {
-            // As we have a 1-D Array for our back buffer
-            // we need to know the equivalent cell in 1-D based
-            // on the 2D coordinates on screen
+            // indexy w odpowiednich bufforach
             var index = (x + y * renderWidth);
             var index4 = index * 4;
 
             if (depthBuffer[index] < z)
             {
-                return; // Discard
+                return; // odrzucenie jeśli już na tym pixelu "jest coś bliżej"
             }
 
+            //wypełnienie bufforów
             depthBuffer[index] = z;
 
             backBuffer[index4] = (byte)(color.A);
@@ -87,94 +95,77 @@ namespace SoftEngine
         }
 
 
-        // Project takes some 3D coordinates and transform them
-        // in 2D coordinates using the transformation matrix
+        // Transformacja współrzędnych z użyciem macierzy transMat
         public Vector3 Project(Vector3 coord, Matrix transMat)
         {
-            // transforming the coordinates
-            var point = Vector3.TransformCoordinate(coord, transMat);
-            // The transformed coordinates will be based on coordinate system
-            // starting on the center of the screen. But drawing on screen normally starts
-            // from top left. We then need to transform them again to have x:0, y:0 on top left.
+            //wersja z wykorzystaniem moich extenderów
+            Vector3 point = transMat.Multiply(coord.ConvertToPoint()).ConvertFromPointOrVector();
+            float length = (transMat.M14 * coord[0]) + (transMat.M24 * coord[1]) + (transMat.M34 * coord[2]) + transMat.M44;
+            point = Vector3.Multiply(point, 1.0f / length);
+
+            //wersja alternatywna z biblioteki
+            //var point = Vector3.TransformCoordinate(coord, transMat);
+
+            //transformacja współrzędnych ze współrzędnych "zwykłych" (środek bitmapy ma współrzędny 0,0) na wpsółrzędne bitmapy
             var x = point.X * bmp.Width + bmp.Width / 2.0f;
             var y = -point.Y * bmp.Height + bmp.Height / 2.0f;
             return (new Vector3(x, y, point.Z));
         }
 
-        // DrawPoint calls PutPixel but does the clipping operation before
+        // Rysuje punkty - wywołuje putpixel tylko wtedy gdy widzi, że pixel jest na ekranie
         public void DrawPoint(Vector3 point, System.Drawing.Color color)
         {
-            // Clipping what's visible on screen
+            // sprawdza czy na ekranie
             if (point.X >= 0 && point.Y >= 0 && point.X < bmp.Width && point.Y < bmp.Height)
             {
-                // Drawing a point
+                // rysuje
                 PutPixel((int)point.X, (int)point.Y, point.Z, color);
             }
         }
 
-        // The main method of the engine that re-compute each vertex projection
-        // during each frame
+        // renderowanie sceny w każdej klatce
         public void Render(Camera camera, params Mesh[] meshes)
         {
-            // To understand this part, please read the prerequisites resources
+            // Mcierz widoku
             var viewMatrix = Matrix.LookAtLH(camera.Position, camera.Target, Vector3.UnitY);
-            var projectionMatrix = Matrix.PerspectiveFovRH(0.78f, 
-                                                           (float)bmp.Width / bmp.Height, 
-                                                           0.01f, 1.0f);
+
+            //macierz projekcji
+            var projectionMatrix = Matrix.PerspectiveFovRH(0.78f, (float)bmp.Width / bmp.Height, 0.01f, 1.0f);
 
             foreach (Mesh mesh in meshes) 
             {
-                // Beware to apply rotation before translation 
-                var worldMatrix = Matrix.RotationYawPitchRoll(mesh.Rotation.Y, mesh.Rotation.X, mesh.Rotation.Z) * 
-                                  Matrix.Translation(mesh.Position);
+                // Macierz świata 
+                var worldMatrix = Matrix.RotationYawPitchRoll(mesh.Rotation.Y, mesh.Rotation.X, mesh.Rotation.Z) * Matrix.Translation(mesh.Position);
 
+                //macierz transormacji współrzędnych
                 var transformMatrix = worldMatrix * viewMatrix * projectionMatrix;
 
 
                 var faceIndex = 0;
+
+                // pętla po wszystkich stronach
                 foreach (var face in mesh.Faces)
                 {
+                    //pobranie pixeli ze strony
                     var vertexA = mesh.Vertices[face.A];
                     var vertexB = mesh.Vertices[face.B];
                     var vertexC = mesh.Vertices[face.C];
 
+                    //przekształcenie ich do narysowania
                     var pixelA = Project(vertexA, transformMatrix);
                     var pixelB = Project(vertexB, transformMatrix);
                     var pixelC = Project(vertexC, transformMatrix);
 
-
-                    //var color = 0.25f + (faceIndex % mesh.Faces.Length) * 0.75f / mesh.Faces.Length;
-                    //DrawTriangle(pixelA, pixelB, pixelC, System.Drawing.Color.FromArgb((int)(color*255),(int)(color*255),(int)(color*255)));
+                    //rysowanie trójkąta
                     DrawTriangle(pixelA, pixelB, pixelC, face.Color);
                     faceIndex++;
                 }
             }
         }
 
-        public void DrawLine(Vector2 point0, Vector2 point1)
-        {
-            int x0 = (int)point0.X;
-            int y0 = (int)point0.Y;
-            int x1 = (int)point1.X;
-            int y1 = (int)point1.Y;
 
-            var dx = Math.Abs(x1 - x0);
-            var dy = Math.Abs(y1 - y0);
-            var sx = (x0 < x1) ? 1 : -1;
-            var sy = (y0 < y1) ? 1 : -1;
-            var err = dx - dy;
 
-            while (true)
-            {
-                //DrawPoint(new Vector2(x0, y0));
-
-                if ((x0 == x1) && (y0 == y1)) break;
-                var e2 = 2 * err;
-                if (e2 > -dy) { err -= dy; x0 += sx; }
-                if (e2 < dx) { err += dx; y0 += sy; }
-            }
-        }
-
+        //wczytanie pliku JSONowego ze strkturą
         public async Task<Mesh[]> LoadJSONFileAsync(string fileName)
         {
             var meshes = new List<Mesh>();
@@ -268,7 +259,7 @@ namespace SoftEngine
         }
 
 
-        // Clamping values to keep them between 0 and 1
+        // przycinanie do odpowiedniej wartości
         float Clamp(float value, float min = 0, float max = 1)
         {
             return Math.Max(min, Math.Min(value, max));
@@ -402,10 +393,5 @@ namespace SoftEngine
                 }
             }
         }
-
-
-
-
-
     }
 }

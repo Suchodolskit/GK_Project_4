@@ -31,8 +31,6 @@ namespace SoftEngine
         public void SetPixel(int x, int y, Color colour)
         {
             int index = (x + (y * Width))*4;
-            //int col = colour.ToArgb();
-
             Bits[index] = colour.A;
             Bits[index+1] = colour.R;
             Bits[index+2] = colour.G;
@@ -42,7 +40,6 @@ namespace SoftEngine
         public Color GetPixel(int x, int y)
         {
             int index = (x + (y * Width))*4;
-            //int col = Bits[index];
             Color result = Color.FromArgb(Bits[index],Bits[index+1],Bits[index+2],Bits[index+3]);
 
             return result;
