@@ -14,17 +14,26 @@ namespace SoftEngine
     {
         private byte[] backBuffer;
         public DirectBitmap bmp;
+        private readonly float[] depthBuffer;
+        private readonly int renderWidth;
+        private readonly int renderHeight;
 
         public Device(DirectBitmap bmp)
         {
             this.bmp = bmp;
+            renderWidth = bmp.Width;
+            renderHeight = bmp.Height;
+
             // the back buffer size is equal to the number of pixels to draw
             // on screen (width*height) * 4 (R,G,B & Alpha values). 
             backBuffer = new byte[bmp.Width * bmp.Height * 4];
+            depthBuffer = new float[bmp.Width * bmp.Height];
         }
 
         // This method is called to clear the back buffer with a specific color
-        public void Clear(byte a, byte r, byte g, byte b) {
+        public void Clear(byte a, byte r, byte g, byte b)
+        {
+            // Clearing Back Buffer
             for (var index = 0; index < backBuffer.Length; index += 4)
             {
                 // BGRA is used by Windows instead by RGBA in HTML5
@@ -32,6 +41,12 @@ namespace SoftEngine
                 backBuffer[index + 1] = r;
                 backBuffer[index + 2] = g;
                 backBuffer[index + 3] = b;
+            }
+
+            // Clearing Depth Buffer
+            for (var index = 0; index < depthBuffer.Length; index++)
+            {
+                depthBuffer[index] = float.MaxValue;
             }
         }
 
@@ -50,17 +65,25 @@ namespace SoftEngine
         }
 
         // Called to put a pixel on screen at a specific X,Y coordinates
-        public void PutPixel(int x, int y, System.Drawing.Color color)
+        public void PutPixel(int x, int y, float z, System.Drawing.Color color)
         {
             // As we have a 1-D Array for our back buffer
             // we need to know the equivalent cell in 1-D based
             // on the 2D coordinates on screen
-            var index = (x + y * bmp.Width) * 4;
+            var index = (x + y * renderWidth);
+            var index4 = index * 4;
 
-            backBuffer[index] = (byte)(color.A * 255);
-            backBuffer[index + 1] = (byte)(color.R * 255);
-            backBuffer[index + 2] = (byte)(color.G * 255);
-            backBuffer[index + 3] = (byte)(color.B * 255);
+            if (depthBuffer[index] < z)
+            {
+                return; // Discard
+            }
+
+            depthBuffer[index] = z;
+
+            backBuffer[index4] = (byte)(color.A);
+            backBuffer[index4 + 1] = (byte)(color.R);
+            backBuffer[index4 + 2] = (byte)(color.G);
+            backBuffer[index4 + 3] = (byte)(color.B);
         }
 
 
@@ -79,13 +102,13 @@ namespace SoftEngine
         }
 
         // DrawPoint calls PutPixel but does the clipping operation before
-        public void DrawPoint(Vector2 point,System.Drawing.Color c)
+        public void DrawPoint(Vector3 point, System.Drawing.Color color)
         {
             // Clipping what's visible on screen
             if (point.X >= 0 && point.Y >= 0 && point.X < bmp.Width && point.Y < bmp.Height)
             {
                 // Drawing a point
-                PutPixel((int)point.X, (int)point.Y, c);
+                PutPixel((int)point.X, (int)point.Y, point.Z, color);
             }
         }
 
@@ -107,7 +130,9 @@ namespace SoftEngine
 
                 var transformMatrix = worldMatrix * viewMatrix * projectionMatrix;
 
+                Random Colorrand = new Random();
 
+                var faceIndex = 0;
                 foreach (var face in mesh.Faces)
                 {
                     var vertexA = mesh.Vertices[face.A];
@@ -118,9 +143,13 @@ namespace SoftEngine
                     var pixelB = Project(vertexB, transformMatrix);
                     var pixelC = Project(vertexC, transformMatrix);
 
-                    DrawLine(pixelA, pixelB);
-                    DrawLine(pixelB, pixelC);
-                    DrawLine(pixelC, pixelA);
+                    int r = Colorrand.Next() % 256;
+                    int g = Colorrand.Next() % 256;
+                    int b = Colorrand.Next() % 256;
+                    //var color = 0.25f + (faceIndex % mesh.Faces.Length) * 0.75f / mesh.Faces.Length;
+                    //DrawTriangle(pixelA, pixelB, pixelC, System.Drawing.Color.FromArgb((int)(color*255),(int)(color*255),(int)(color*255)));
+                    DrawTriangle(pixelA, pixelB, pixelC, System.Drawing.Color.FromArgb(r,g,b));
+                    faceIndex++;
                 }
             }
         }
@@ -140,7 +169,7 @@ namespace SoftEngine
 
             while (true)
             {
-                DrawPoint(new Vector2(x0, y0));
+                //DrawPoint(new Vector2(x0, y0));
 
                 if ((x0 == x1) && (y0 == y1)) break;
                 var e2 = 2 * err;
@@ -236,7 +265,140 @@ namespace SoftEngine
         }
 
 
+        // Clamping values to keep them between 0 and 1
+        float Clamp(float value, float min = 0, float max = 1)
+        {
+            return Math.Max(min, Math.Min(value, max));
+        }
 
+        // Interpolating the value between 2 vertices 
+        // min is the starting point, max the ending point
+        // and gradient the % between the 2 points
+        float Interpolate(float min, float max, float gradient)
+        {
+            return min + (max - min) * Clamp(gradient);
+        }
+
+        // drawing line between 2 points from left to right
+        // papb -> pcpd
+        // pa, pb, pc, pd must then be sorted before
+        void ProcessScanLine(int y, Vector3 pa, Vector3 pb, Vector3 pc, Vector3 pd, System.Drawing.Color color)
+        {
+            // Thanks to current Y, we can compute the gradient to compute others values like
+            // the starting X (sx) and ending X (ex) to draw between
+            // if pa.Y == pb.Y or pc.Y == pd.Y, gradient is forced to 1
+            var gradient1 = pa.Y != pb.Y ? (y - pa.Y) / (pb.Y - pa.Y) : 1;
+            var gradient2 = pc.Y != pd.Y ? (y - pc.Y) / (pd.Y - pc.Y) : 1;
+
+            int sx = (int)Interpolate(pa.X, pb.X, gradient1);
+            int ex = (int)Interpolate(pc.X, pd.X, gradient2);
+
+            // starting Z & ending Z
+            float z1 = Interpolate(pa.Z, pb.Z, gradient1);
+            float z2 = Interpolate(pc.Z, pd.Z, gradient2);
+
+            // drawing a line from left (sx) to right (ex) 
+            for (var x = sx; x < ex; x++)
+            {
+                float gradient = (x - sx) / (float)(ex - sx);
+
+                var z = Interpolate(z1, z2, gradient);
+                DrawPoint(new Vector3(x, y, z), color);
+            }
+        }
+
+        public void DrawTriangle(Vector3 p1, Vector3 p2, Vector3 p3, System.Drawing.Color color)
+        {
+            // Sorting the points in order to always have this order on screen p1, p2 & p3
+            // with p1 always up (thus having the Y the lowest possible to be near the top screen)
+            // then p2 between p1 & p3
+            if (p1.Y > p2.Y)
+            {
+                var temp = p2;
+                p2 = p1;
+                p1 = temp;
+            }
+
+            if (p2.Y > p3.Y)
+            {
+                var temp = p2;
+                p2 = p3;
+                p3 = temp;
+            }
+
+            if (p1.Y > p2.Y)
+            {
+                var temp = p2;
+                p2 = p1;
+                p1 = temp;
+            }
+
+            // inverse slopes
+            float dP1P2, dP1P3;
+
+            // http://en.wikipedia.org/wiki/Slope
+            // Computing inverse slopes
+            if (p2.Y - p1.Y > 0)
+                dP1P2 = (p2.X - p1.X) / (p2.Y - p1.Y);
+            else
+                dP1P2 = 0;
+
+            if (p3.Y - p1.Y > 0)
+                dP1P3 = (p3.X - p1.X) / (p3.Y - p1.Y);
+            else
+                dP1P3 = 0;
+
+            // First case where triangles are like that:
+            // P1
+            // -
+            // -- 
+            // - -
+            // -  -
+            // -   - P2
+            // -  -
+            // - -
+            // -
+            // P3
+            if (dP1P2 > dP1P3)
+            {
+                for (var y = (int)p1.Y; y <= (int)p3.Y; y++)
+                {
+                    if (y < p2.Y)
+                    {
+                        ProcessScanLine(y, p1, p3, p1, p2, color);
+                    }
+                    else
+                    {
+                        ProcessScanLine(y, p1, p3, p2, p3, color);
+                    }
+                }
+            }
+            // First case where triangles are like that:
+            //       P1
+            //        -
+            //       -- 
+            //      - -
+            //     -  -
+            // P2 -   - 
+            //     -  -
+            //      - -
+            //        -
+            //       P3
+            else
+            {
+                for (var y = (int)p1.Y; y <= (int)p3.Y; y++)
+                {
+                    if (y < p2.Y)
+                    {
+                        ProcessScanLine(y, p1, p2, p1, p3, color);
+                    }
+                    else
+                    {
+                        ProcessScanLine(y, p2, p3, p1, p3, color);
+                    }
+                }
+            }
+        }
 
 
 
