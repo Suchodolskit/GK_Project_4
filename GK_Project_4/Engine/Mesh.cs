@@ -8,6 +8,7 @@ namespace SoftEngine
         public int A;
         public int B;
         public int C;
+        public System.Drawing.Color Color;
     }
     public class Mesh
     {

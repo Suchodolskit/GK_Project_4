@@ -130,7 +130,6 @@ namespace SoftEngine
 
                 var transformMatrix = worldMatrix * viewMatrix * projectionMatrix;
 
-                Random Colorrand = new Random();
 
                 var faceIndex = 0;
                 foreach (var face in mesh.Faces)
@@ -143,12 +142,10 @@ namespace SoftEngine
                     var pixelB = Project(vertexB, transformMatrix);
                     var pixelC = Project(vertexC, transformMatrix);
 
-                    int r = Colorrand.Next() % 256;
-                    int g = Colorrand.Next() % 256;
-                    int b = Colorrand.Next() % 256;
+
                     //var color = 0.25f + (faceIndex % mesh.Faces.Length) * 0.75f / mesh.Faces.Length;
                     //DrawTriangle(pixelA, pixelB, pixelC, System.Drawing.Color.FromArgb((int)(color*255),(int)(color*255),(int)(color*255)));
-                    DrawTriangle(pixelA, pixelB, pixelC, System.Drawing.Color.FromArgb(r,g,b));
+                    DrawTriangle(pixelA, pixelB, pixelC, face.Color);
                     faceIndex++;
                 }
             }
@@ -248,12 +245,18 @@ namespace SoftEngine
                 }
 
                 // Then filling the Faces array
+                Random Colorrand = new Random();
+
+
                 for (var index = 0; index < facesCount; index++)
                 {
+                    int r = Colorrand.Next() % 256;
+                    int g = Colorrand.Next() % 256;
+                    int B = Colorrand.Next() % 256;
                     var a = (int)indicesArray[index * 3].Value;
                     var b = (int)indicesArray[index * 3 + 1].Value;
                     var c = (int)indicesArray[index * 3 + 2].Value;
-                    mesh.Faces[index] = new Face { A = a, B = b, C = c };
+                    mesh.Faces[index] = new Face { A = a, B = b, C = c,Color=System.Drawing.Color.FromArgb(r,g,B) };
                 }
 
                 // Getting the position you've set in Blender
