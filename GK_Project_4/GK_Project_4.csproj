@@ -62,7 +62,7 @@
       <DependentUpon>Form1.cs</DependentUpon>
     </Compile>
     <Compile Include="Engine\Mesh.cs" />
-    <Compile Include="MatrixOperationExtender.cs" />
+    <Compile Include="Engine\MatrixOperationExtender.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Form1.resx">

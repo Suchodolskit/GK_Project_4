@@ -163,8 +163,6 @@ namespace SoftEngine
             }
         }
 
-
-
         //wczytanie pliku JSONowego ze strkturą
         public async Task<Mesh[]> LoadJSONFileAsync(string fileName)
         {
@@ -257,7 +255,6 @@ namespace SoftEngine
             }
             return meshes.ToArray();
         }
-
 
         // przycinanie do odpowiedniej wartości
         float Clamp(float value, float min = 0, float max = 1)
