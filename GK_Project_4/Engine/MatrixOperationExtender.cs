@@ -32,5 +32,9 @@ namespace SoftEngine
         {
             return new Vector3(v[0],v[1],v[2]);
         }
+        public static System.Drawing.Color Multiply(this System.Drawing.Color value,float scale)
+        {
+            return System.Drawing.Color.FromArgb((int)(value.R * scale),(int) (value.G * scale), (int)(value.B * scale), (int)(value.A * scale));
+        }
     }
 }

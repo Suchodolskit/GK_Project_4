@@ -73,7 +73,7 @@ namespace GK_Project_4
             //    mesh.Position = new Vector3(p.X + 50, p.Y + 50, p.Z + 50);
             //}
 
-            mera.Position = new Vector3(0, 0, 10.0f);
+            mera.Position = new Vector3(0, 0, 5.0f);
             mera.Target = Vector3.Zero;
 
 
