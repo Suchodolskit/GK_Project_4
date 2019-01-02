@@ -22,7 +22,7 @@ namespace GK_Project_4
         }
 
         private Device device;
-        Mesh[] meshes;
+        Mesh[][] meshes;
         Camera mera = new Camera();
         Timer Rendring;
 
@@ -31,14 +31,19 @@ namespace GK_Project_4
         {
             device.Clear(0, 0, 0, 255);
 
-            // rotating slightly the cube during each frame rendered
-            foreach (var mesh in meshes)
+            for (int i = 0; i < 1; i++)
             {
-                // rotating slightly the meshes during each frame rendered
-                mesh.Rotation = new Vector3(mesh.Rotation.X + 0.01f, mesh.Rotation.Y + 0.01f, mesh.Rotation.Z);
+                // rotating slightly the cube during each frame rendered
+                foreach (var mesh in meshes[i])
+                {
+                    // rotating slightly the meshes during each frame rendered
+                    mesh.Rotation = new Vector3(mesh.Rotation.X + 0.01f*i+0.01f, mesh.Rotation.Y + 0.01f*i+0.01f, mesh.Rotation.Z);
+                }
+                // Doing the various matrix operations
+                device.Render(mera, meshes[i]);
             }
-            // Doing the various matrix operations
-            device.Render(mera, meshes);
+                
+                //device.Render(mera, meshes2);
 
             // Flushing the back buffer into the front buffer
             device.Present();
@@ -47,13 +52,26 @@ namespace GK_Project_4
         private async void Form1_Load(object sender, EventArgs e)
         {
             // Choose the back buffer resolution here
-            DirectBitmap bmp = new DirectBitmap(640, 480);
+            DirectBitmap bmp = new DirectBitmap(520, 320);
 
             device = new Device(bmp,pictureBox1);
 
             pictureBox1.Image = bmp.Bitmap;
 
-            meshes = await device.LoadJSONFileAsync("monkey.babylon");
+            meshes = new Mesh[1][];
+
+            for (int i = 0; i < 1; i++)
+            {
+                meshes[i] = await device.LoadJSONFileAsync("dd");
+            }
+
+            //meshes1 = await device.LoadJSONFileAsync("monkey.babylon");
+            //meshes2 =await device.LoadJSONFileAsync("monkey.babylon");
+            //foreach (var mesh in meshes2)
+            //{
+            //    var p = mesh.Position;
+            //    mesh.Position = new Vector3(p.X + 50, p.Y + 50, p.Z + 50);
+            //}
 
             mera.Position = new Vector3(0, 0, 10.0f);
             mera.Target = Vector3.Zero;
