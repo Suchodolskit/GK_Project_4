@@ -6,7 +6,5 @@ namespace SoftEngine
     {
         public Vector3 Position { get; set; }
         public Vector3 Target { get; set; }
-
-        public int tmp;
     }
 }
