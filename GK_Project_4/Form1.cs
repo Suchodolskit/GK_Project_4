@@ -74,8 +74,8 @@ namespace GK_Project_4
             //}
 
             mera.Position = new Vector3(0, 0, 5.0f);
-            mera.Target = Vector3.Zero;
-
+            mera.Target = new Vector3(0,0,0);
+            mera.Up = new Vector3(0, 1, 0);
 
             Rendring = new Timer();
             Rendring.Tick += CompositionTarget_Rendering;

@@ -55,6 +55,7 @@
     <Compile Include="Engine\Camera.cs" />
     <Compile Include="Engine\Device.cs" />
     <Compile Include="Engine\DirectBitmap.cs" />
+    <Compile Include="Engine\TransitionMatrices.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>
     </Compile>

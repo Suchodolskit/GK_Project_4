@@ -157,10 +157,19 @@ namespace SoftEngine
         public void Render(Camera camera, params Mesh[] meshes)
         {
             // Mcierz widoku
-            var viewMatrix = Matrix.LookAtLH(camera.Position, camera.Target, Vector3.UnitY);
+            //var viewMatrix = Matrix.LookAtLH(camera.Position,camera.Target, Vector3.UnitY);
+            var viewMatrix = TransitionMatrices.LookAt(camera);
+
+            //transponowanie gdyż inna reprezentacja
+            viewMatrix.Transpose();
+
 
             //macierz projekcji
             var projectionMatrix = Matrix.PerspectiveFovRH(0.78f, (float)bmp.Width / bmp.Height, 0.01f, 1.0f);
+
+            var pm = TransitionMatrices.Prespective(0.78f, (float)bmp.Width / bmp.Height, 0.01f, 1.0f);
+            pm.Transpose();
+            projectionMatrix = pm;
 
             foreach (Mesh mesh in meshes) 
             {
@@ -168,7 +177,7 @@ namespace SoftEngine
                 var worldMatrix = Matrix.RotationYawPitchRoll(mesh.Rotation.Y, mesh.Rotation.X, mesh.Rotation.Z) * Matrix.Translation(mesh.Position);
 
                 //macierz transormacji współrzędnych
-                var transformMatrix = worldMatrix * viewMatrix * projectionMatrix;
+                var transformMatrix = /*worldMatrix */ viewMatrix * projectionMatrix;
 
 
                 var faceIndex = 0;
