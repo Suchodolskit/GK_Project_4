@@ -164,7 +164,7 @@ namespace SoftEngine
             //macierz projekcji
             var projectionMatrix = Matrix.PerspectiveFovRH(0.78f, (float)bmp.Width / bmp.Height, 0.01f, 1.0f);
 
-            var pm = TransitionMatrices.Prespective(0.78f, (float)bmp.Width / bmp.Height, 0.01f, 1.0f);
+            var pm = TransitionMatrices.Prespective(0.78f, (float)bmp.Width / bmp.Height, 0.49f, 0.5f);
             pm.Transpose();
             projectionMatrix = pm;
 

@@ -14,6 +14,14 @@ namespace SoftEngine
         public Vector3 Normal;
         public Vector3 Coordinates;
         public Vector3 WorldCoordinates;
+        public static bool operator ==(Vertex v1, Vertex v2)
+        {
+            return v1.WorldCoordinates == v2.WorldCoordinates;
+        }
+        public static bool operator !=(Vertex v1, Vertex v2)
+        {
+            return !(v1 == v2);
+        }
     }
     public class Mesh
     {

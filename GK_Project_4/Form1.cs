@@ -19,6 +19,7 @@ namespace GK_Project_4
         public Form1()
         {
             InitializeComponent();
+            pictureBox1.SizeMode = PictureBoxSizeMode.StretchImage;
         }
 
         private Device device;
@@ -53,7 +54,7 @@ namespace GK_Project_4
         private async void Form1_Load(object sender, EventArgs e)
         {
             // Choose the back buffer resolution here
-            DirectBitmap bmp = new DirectBitmap(520, 320);
+            DirectBitmap bmp = new DirectBitmap(320, 240);
 
             device = new Device(bmp,pictureBox1);
 
@@ -66,7 +67,7 @@ namespace GK_Project_4
                 meshes[i] = await device.LoadJSONFileAsync("dd");
             }
 
-            mera.Position = new Vector3(0, 0, 5.0f);
+            mera.Position = new Vector3(0, 0, 2.0f);
             mera.Target = new Vector3(0,0,0);
             mera.Up = new Vector3(0, 1, 0);
 
