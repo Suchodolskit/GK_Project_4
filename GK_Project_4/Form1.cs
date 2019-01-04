@@ -37,7 +37,8 @@ namespace GK_Project_4
                 foreach (var mesh in meshes[i])
                 {
                     // rotating slightly the meshes during each frame rendered
-                    mesh.Rotation = new Vector3(mesh.Rotation.X + 0.01f*i+0.01f, mesh.Rotation.Y + 0.01f*i+0.01f, mesh.Rotation.Z);
+                    mesh.Rotation = new Vector3(mesh.Rotation.X + 0.05f, mesh.Rotation.Y, mesh.Rotation.Z);
+                    mesh.Position = new Vector3(mesh.Position.X, mesh.Position.Y, mesh.Position.Z - 0.1f);
                 }
                 // Doing the various matrix operations
                 device.Render(mera, meshes[i]);
@@ -65,14 +66,6 @@ namespace GK_Project_4
                 meshes[i] = await device.LoadJSONFileAsync("dd");
             }
 
-            //meshes1 = await device.LoadJSONFileAsync("monkey.babylon");
-            //meshes2 =await device.LoadJSONFileAsync("monkey.babylon");
-            //foreach (var mesh in meshes2)
-            //{
-            //    var p = mesh.Position;
-            //    mesh.Position = new Vector3(p.X + 50, p.Y + 50, p.Z + 50);
-            //}
-
             mera.Position = new Vector3(0, 0, 5.0f);
             mera.Target = new Vector3(0,0,0);
             mera.Up = new Vector3(0, 1, 0);
@@ -84,9 +77,5 @@ namespace GK_Project_4
 
         }
 
-        private void pictureBox1_Click(object sender, EventArgs e)
-        {
-
-        }
     }
 }

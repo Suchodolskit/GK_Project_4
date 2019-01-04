@@ -27,7 +27,7 @@ namespace SoftEngine
         public DirectBitmap bmp;
 
         //buffor głębokości - z-buffor
-        private readonly float[] depthBuffer;
+        private readonly float[] ZBuffer;
 
         //długość i szerokość obszaru renderowania
         private readonly int renderWidth;
@@ -45,7 +45,7 @@ namespace SoftEngine
             //potrzeba * 4 bo jeden pixel reprezetowany jako ARGB na 4 bajtach 
             backBuffer = new byte[bmp.Width * bmp.Height * 4];
 
-            depthBuffer = new float[bmp.Width * bmp.Height];
+            ZBuffer = new float[bmp.Width * bmp.Height];
         }
 
         // Metoda czyści bufory na zadany kolor
@@ -61,9 +61,9 @@ namespace SoftEngine
             }
 
             // czyszczenie depth buffora
-            for (var index = 0; index < depthBuffer.Length; index++)
+            for (var index = 0; index < ZBuffer.Length; index++)
             {
-                depthBuffer[index] = float.MaxValue;
+                ZBuffer[index] = float.MaxValue;
             }
         }
 
@@ -87,13 +87,13 @@ namespace SoftEngine
             var index = (x + y * renderWidth);
             var index4 = index * 4;
 
-            if (depthBuffer[index] < z)
+            if (ZBuffer[index] < z)
             {
                 return; // odrzucenie jeśli już na tym pixelu "jest coś bliżej"
             }
 
             //wypełnienie bufforów
-            depthBuffer[index] = z;
+            ZBuffer[index] = z;
 
             backBuffer[index4] = (byte)(color.A);
             backBuffer[index4 + 1] = (byte)(color.R);
@@ -101,31 +101,28 @@ namespace SoftEngine
             backBuffer[index4 + 3] = (byte)(color.B);
         }
 
-
-        // Transformacja współrzędnych z użyciem macierzy transMat
-        //public Vector3 Project(Vector3 coord, Matrix transMat)
-        //{
-        //    //wersja z wykorzystaniem moich extenderów
-        //    Vector3 point = transMat.Multiply(coord.ConvertToPoint()).ConvertFromPointOrVector();
-        //    float length = (transMat.M14 * coord[0]) + (transMat.M24 * coord[1]) + (transMat.M34 * coord[2]) + transMat.M44;
-        //    point = Vector3.Multiply(point, 1.0f / length);
-
-        //    //wersja alternatywna z biblioteki
-        //    //var point = Vector3.TransformCoordinate(coord, transMat);
-
-        //    //transformacja współrzędnych ze współrzędnych "zwykłych" (środek bitmapy ma współrzędny 0,0) na wpsółrzędne bitmapy
-        //    var x = point.X * bmp.Width + bmp.Width / 2.0f;
-        //    var y = -point.Y * bmp.Height + bmp.Height / 2.0f;
-        //    return (new Vector3(x, y, point.Z));
-        //}
-
         public Vertex Project(Vertex vertex, Matrix transMat, Matrix world)
         {
             // transforming the coordinates into 2D space
-            var point2d = Vector3.TransformCoordinate(vertex.Coordinates, transMat);
+            //var point2d = Vector3.TransformCoordinate(vertex.Coordinates, transMat);
+
+            var p1 = new Vector4(vertex.Coordinates, 1);
+            var p2 = new Vector4(vertex.Normal, 0);
+            transMat.Transpose();
+            var point2d = TransitionMatrices.TransformCoordinateWithMatrix(p1, transMat);
+            transMat.Transpose();
+
+
             // transforming the coordinates & the normal to the vertex in the 3D world
-            var point3dWorld = Vector3.TransformCoordinate(vertex.Coordinates, world);
-            var normal3dWorld = Vector3.TransformCoordinate(vertex.Normal, world);
+
+
+            //var point3dWorld = Vector3.TransformCoordinate(vertex.Coordinates, world);
+            //var normal3dWorld = Vector3.TransformCoordinate(vertex.Normal, world);
+            world.Transpose();
+            var point3dWorld = TransitionMatrices.TransformCoordinateWithMatrix(p1, world);
+            var normal3dWorld = TransitionMatrices.TransformCoordinateWithMatrix(p2, world);
+            world.Transpose();
+
 
             // The transformed coordinates will be based on coordinate system
             // starting on the center of the screen. But drawing on screen normally starts
@@ -136,8 +133,8 @@ namespace SoftEngine
             return new Vertex
             {
                 Coordinates = new Vector3(x, y, point2d.Z),
-                Normal = normal3dWorld,
-                WorldCoordinates = point3dWorld
+                Normal =(Vector3) normal3dWorld,
+                WorldCoordinates =(Vector3) point3dWorld
             };
         }
 
@@ -176,8 +173,12 @@ namespace SoftEngine
                 // Macierz świata 
                 var worldMatrix = Matrix.RotationYawPitchRoll(mesh.Rotation.Y, mesh.Rotation.X, mesh.Rotation.Z) * Matrix.Translation(mesh.Position);
 
+                var wm2 = TransitionMatrices.Translation(mesh.Position)*TransitionMatrices.RotationZ(mesh.Rotation.Z) * TransitionMatrices.RotationY(mesh.Rotation.Y) * TransitionMatrices.RotationX(mesh.Rotation.X);
+                wm2.Transpose();
+                worldMatrix = wm2;
+
                 //macierz transormacji współrzędnych
-                var transformMatrix = /*worldMatrix */ viewMatrix * projectionMatrix;
+                var transformMatrix = worldMatrix * viewMatrix * projectionMatrix;
 
 
                 var faceIndex = 0;
@@ -285,7 +286,7 @@ namespace SoftEngine
                     var a = (int)indicesArray[index * 3].Value;
                     var b = (int)indicesArray[index * 3 + 1].Value;
                     var c = (int)indicesArray[index * 3 + 2].Value;
-                    mesh.Faces[index] = new Face { A = a, B = b, C = c,Color=System.Drawing.Color.Black};
+                    mesh.Faces[index] = new Face { A = a, B = b, C = c,Color=System.Drawing.Color.Green};
                 }
 
                 // Getting the position you've set in Blender

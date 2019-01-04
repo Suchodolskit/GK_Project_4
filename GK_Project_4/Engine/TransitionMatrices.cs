@@ -155,5 +155,12 @@ namespace SoftEngine
             m.Row3 = new Vector4(z.X, z.Y, z.Z, Vector3.Dot(z, Zero));
             return m;
         }
+
+        public static Vector4 TransformCoordinateWithMatrix(Vector4 coordinate, Matrix transform)
+        {
+            var vec=transform.Multiply(coordinate);
+            if (vec.W == 0) return vec;
+            return Vector4.Divide(vec, vec.W);
+        }
     }
 }
