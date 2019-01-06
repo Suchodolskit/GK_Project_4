@@ -16,9 +16,10 @@ namespace SoftEngine
         public List<Edge> Edges;
         public Device device;
 
-        public Scanline(Device device, Vertex v1,Vertex v2, Vertex v3)
+        public Scanline(Device device, List<Edge> l)
         {
             this.device = device;
+            Edges = l;
         }
 
         private class AETListElement
@@ -44,11 +45,11 @@ namespace SoftEngine
             List<AETListElement>[] tab = new List<AETListElement>[device.bmp.Height+1];
             foreach (var e in Edges)
             {
-                if (e.LowerPoint().WorldCoordinates.Y < minY) minY = (int)e.LowerPoint().WorldCoordinates.Y;
-                if (e.HigherPoint().WorldCoordinates.Y > maxY) maxY = (int)e.HigherPoint().WorldCoordinates.Y;
-                if (tab[(int)e.LowerPoint().WorldCoordinates.Y] == null) { tab[(int)e.LowerPoint().WorldCoordinates.Y] = new List<AETListElement>(); }
-                double ReverseM = ((double)e.HigherPoint().WorldCoordinates.X - (double)e.LowerPoint().WorldCoordinates.X) / ((double)e.HigherPoint().WorldCoordinates.Y - (double)e.LowerPoint().WorldCoordinates.Y);
-                tab[(int)e.LowerPoint().WorldCoordinates.Y].Add(new AETListElement((int)e.HigherPoint().WorldCoordinates.Y, (int)e.LowerPoint().WorldCoordinates.X, ReverseM));
+                if (e.LowerPoint().Y < minY) minY = (int)e.LowerPoint().Y;
+                if (e.HigherPoint().Y > maxY) maxY = (int)e.HigherPoint().Y;
+                if (tab[(int)e.LowerPoint().Y] == null) { tab[(int)e.LowerPoint().Y] = new List<AETListElement>(); }
+                double ReverseM = ((double)e.HigherPoint().X - (double)e.LowerPoint().X) / ((double)e.HigherPoint().Y - (double)e.LowerPoint().Y);
+                tab[(int)e.LowerPoint().Y].Add(new AETListElement((int)e.HigherPoint().Y, (int)e.LowerPoint().X, ReverseM));
             }
             return tab;
         }
@@ -78,8 +79,8 @@ namespace SoftEngine
                 {
                     for (int k = (int)AET[j].X; k <= (int)AET[j + 1].X; k++)
                     {
-                        //b.SetPixel(k, i, form.MyColorV2(k, i));
-                        //device.DrawPoint()
+                        //b.SetPixel(k, i, c);
+                        device.DrawPoint(new Vector3(k, i, 1), c);
                     }
                 }
 

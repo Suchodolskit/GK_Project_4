@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SharpDX;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,13 +9,13 @@ namespace SoftEngine
 {
     public class Edge
     {
-        public Vertex vertex1;
-        public Vertex vertex2;
+        public Vector4 vertex1;
+        public Vector4 vertex2;
         private bool vertical;
         private bool horizontal;
         public int length; // <=0 oznacza, że krawędź nie ma ustalonej długości
 
-        public Edge(Vertex vertex1, Vertex vertex2)
+        public Edge(Vector4 vertex1, Vector4 vertex2)
         {
             this.vertex1 = vertex1;
             this.vertex2 = vertex2;
@@ -55,11 +56,11 @@ namespace SoftEngine
         //{
         //    return ((e1.vertex1 == e2.vertex1) && (e1.vertex2 == e2.vertex2)) || ((e1.vertex2 == e2.vertex1) && (e1.vertex1 == e2.vertex2));
         //}
-        public Vertex LowerPoint()
+        public Vector4 LowerPoint()
         {
-            return vertex1.Coordinates.Y <= vertex2.Coordinates.Y ? vertex1 : vertex2;
+            return vertex1.Y <= vertex2.Y ? vertex1 : vertex2;
         }
-        public Vertex HigherPoint()
+        public Vector4 HigherPoint()
         {
             if (LowerPoint() == vertex1) return vertex2;
             return vertex1;

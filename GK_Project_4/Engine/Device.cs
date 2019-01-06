@@ -29,8 +29,8 @@ namespace SoftEngine
         private readonly float[] ZBuffer;
 
         //długość i szerokość obszaru renderowania
-        private readonly int renderWidth;
-        private readonly int renderHeight;
+        public readonly int renderWidth;
+        public readonly int renderHeight;
 
         private PictureBox picturebox;
 

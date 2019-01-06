@@ -130,8 +130,8 @@ namespace SoftEngine
             Matrix m = Matrix.Zero;
             m.M11 = (float)(1.0f / Math.Tan(fov * 0.5f));
             m.M22 = (float)(m.M11 / a);
-            m.M33 = (float)((-f-n)  / (f - n));
-            m.M34 = (float)((-2*f * n) / (f - n));
+            m.M33 = (float)((-f)  / (f - n));
+            m.M34 = (float)((-f * n) / (f - n));
             m.M43 = -1;
 
             return m;

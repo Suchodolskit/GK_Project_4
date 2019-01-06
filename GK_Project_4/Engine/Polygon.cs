@@ -20,23 +20,6 @@ namespace SoftEngine
                 Vertices.Add(tab[i]);
             }
         }
-        public Polygon(params Edge[] tab)
-        {
-            Vertices = new List<Vertex>();
-            for (int i = 0; i < tab.Length; i++)
-            {
-                Vertices.Add(tab[i].vertex1);
-            }
-        }
-        public List<Edge> ReturnEdgesList()
-        {
-            List<Edge> l = new List<Edge>();
-            for (int i = 0; i < Vertices.Count; i++)
-            {
-                l.Add(new Edge(Vertices[i], Vertices[(i + 1) % Vertices.Count]));
-            }
-            return l;
-        }
         public void MakeTemporaryVertexStructureList(Matrix transformMatrix, Matrix cameraPerspectiveMatrix)
         {
             StructureList = new List<TemporaryVertexStructure>();
@@ -227,6 +210,43 @@ namespace SoftEngine
                 StructureList[i].pprim = Vector4.Divide(StructureList[i].pbis, StructureList[i].pbis.W);
             }
         }
+        public void ClipByWindowSize()
+        {
+            int tmp = 0;
+            for (int i = 0; i < StructureList.Count; i++)
+            {
+                if (Math.Abs(StructureList[i].pprim.X) > 1 || Math.Abs(StructureList[i].pprim.Y) > 1)
+                {
+                    tmp++;
+                }
+            }
+            if (tmp == StructureList.Count) NotDrawedPolygon = true;
+        }
+        public List<Edge> PrepareEdgesToScanLineAlgorithm(int width, int height)
+        {
+            if (NotDrawedPolygon) return null;
+            List<Edge> Scanlinelist = new List<Edge>();
+            for (int i = 0; i < StructureList.Count-1; i++)
+            {
+                Edge e = new Edge( TransformToBitmapCoordinates(StructureList[i].pprim,width,height), TransformToBitmapCoordinates(StructureList[i + 1].pprim,width,height));
+                Scanlinelist.Add(e);
+            }
+            Edge f = new Edge( TransformToBitmapCoordinates(StructureList[StructureList.Count-1].pprim,width,height), TransformToBitmapCoordinates(StructureList[0].pprim,width,height));
+            Scanlinelist.Add(f);
+            return Scanlinelist;
+        }
+        public Vector4 TransformToBitmapCoordinates(Vector4 v, int width, int height)
+        {
+            int h = height - 1;
+            int w = width - 1;
+            Vector4 tmp = new Vector4();
+            tmp.W = 1;
+            tmp.X = (v.X + 1) * w / 2;
+            tmp.Y= (-v.Y + 1) * h / 2;
+            tmp.Z = v.Z;
+            return tmp;
+        }
+
     }
     public class TemporaryVertexStructure
     {
