@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Reflection;
-using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using SharpDX;
@@ -106,8 +105,8 @@ namespace SoftEngine
             // transforming the coordinates into 2D space
             //var point2d = Vector3.TransformCoordinate(vertex.Coordinates, transMat);
 
-            var p1 = new Vector4(vertex.Coordinates, 1);
-            var p2 = new Vector4(vertex.Normal, 0);
+            var p1 = vertex.Coordinates;
+            var p2 = vertex.Normal;
             transMat.Transpose();
             var point2d = TransitionMatrices.TransformCoordinateWithMatrix(p1, transMat);
             transMat.Transpose();
@@ -132,9 +131,9 @@ namespace SoftEngine
 
             return new Vertex
             {
-                Coordinates = new Vector3(x, y, point2d.Z),
-                Normal =(Vector3) normal3dWorld,
-                WorldCoordinates =(Vector3) point3dWorld
+                Coordinates = new Vector4(x, y, point2d.Z,1),
+                Normal =normal3dWorld,
+                WorldCoordinates =point3dWorld
             };
         }
 
@@ -164,7 +163,7 @@ namespace SoftEngine
             //macierz projekcji
             var projectionMatrix = Matrix.PerspectiveFovRH(0.78f, (float)bmp.Width / bmp.Height, 0.01f, 1.0f);
 
-            var pm = TransitionMatrices.Prespective(0.78f, (float)bmp.Width / bmp.Height, 0.49f, 0.5f);
+            var pm = TransitionMatrices.Prespective(0.78f, (float)bmp.Width / bmp.Height, 0.1f, 1.0f);
             pm.Transpose();
             projectionMatrix = pm;
 
@@ -218,19 +217,11 @@ namespace SoftEngine
             using (FileStream file = new FileStream(path, FileMode.Open))
 
             {
-
                 using (StreamReader stream = new StreamReader(file))
-
                 {
-
                     data = await stream.ReadToEndAsync();
-
                 }
-
             }
-
-
-
 
             dynamic jsonObject = Newtonsoft.Json.JsonConvert.DeserializeObject(data);
 
@@ -274,7 +265,7 @@ namespace SoftEngine
                     var nx = (float)verticesArray[index * verticesStep + 3].Value;
                     var ny = (float)verticesArray[index * verticesStep + 4].Value;
                     var nz = (float)verticesArray[index * verticesStep + 5].Value;
-                    mesh.Vertices[index] = new Vertex { Coordinates = new Vector3(x, y, z), Normal = new Vector3(nx, ny, nz) };
+                    mesh.Vertices[index] = new Vertex { Coordinates = new Vector4(x, y, z,1), Normal = new Vector4(nx, ny, nz,0) };
                 }
 
                 // Then filling the Faces array
@@ -321,10 +312,10 @@ namespace SoftEngine
         // pa, pb, pc, pd must then be sorted before
         void ProcessScanLine(ScanLineData data, Vertex va, Vertex vb, Vertex vc, Vertex vd, System.Drawing.Color color)
         {
-            Vector3 pa = va.Coordinates;
-            Vector3 pb = vb.Coordinates;
-            Vector3 pc = vc.Coordinates;
-            Vector3 pd = vd.Coordinates;
+            Vector4 pa = va.Coordinates;
+            Vector4 pb = vb.Coordinates;
+            Vector4 pc = vc.Coordinates;
+            Vector4 pd = vd.Coordinates;
 
             // Thanks to current Y, we can compute the gradient to compute others values like
             // the starting X (sx) and ending X (ex) to draw between
@@ -381,17 +372,17 @@ namespace SoftEngine
                 v1 = temp;
             }
 
-            Vector3 p1 = v1.Coordinates;
-            Vector3 p2 = v2.Coordinates;
-            Vector3 p3 = v3.Coordinates;
+            Vector4 p1 = v1.Coordinates;
+            Vector4 p2 = v2.Coordinates;
+            Vector4 p3 = v3.Coordinates;
 
             // Light position 
             Vector3 lightPos = new Vector3(0, 10, 10);
             // computing the cos of the angle between the light vector and the normal vector
             // it will return a value between 0 and 1 that will be used as the intensity of the color
-            float nl1 = ComputeNDotL(v1.WorldCoordinates, v1.Normal, lightPos);
-            float nl2 = ComputeNDotL(v2.WorldCoordinates, v2.Normal, lightPos);
-            float nl3 = ComputeNDotL(v3.WorldCoordinates, v3.Normal, lightPos);
+            float nl1 = ComputeNDotL((Vector3)v1.WorldCoordinates, (Vector3)v1.Normal, lightPos);
+            float nl2 = ComputeNDotL((Vector3)v2.WorldCoordinates, (Vector3)v2.Normal, lightPos);
+            float nl3 = ComputeNDotL((Vector3)v3.WorldCoordinates, (Vector3)v3.Normal, lightPos);
 
             var data = new ScanLineData { };
 

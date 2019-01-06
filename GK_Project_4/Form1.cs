@@ -78,5 +78,31 @@ namespace GK_Project_4
 
         }
 
+        private void button1_Click(object sender, EventArgs e)
+        {
+            List<Polygon> l = new List<Polygon>();
+            for (int i = 0; i < meshes[0][0].Vertices.Length; i+=3)
+            {
+                Polygon p = new Polygon(meshes[0][0].Vertices[i], meshes[0][0].Vertices[i+1], meshes[0][0].Vertices[i+2]);
+                var viewMatrix = TransitionMatrices.LookAt(mera);
+                var pm = TransitionMatrices.Prespective(0.78f, (float)320 / 240, 0.9f, 1.0f);
+                var m = Matrix.Identity;
+                var m2 = pm *viewMatrix;
+
+                p.MakeTemporaryVertexStructureList(m, m2);
+                p.ClipByCuttingPlanes();
+                p.Computepprim();
+                l.Add(p);
+            }
+            List<Polygon> l2 = new List<Polygon>();
+            foreach(var tmp in l)
+            {
+                if (!tmp.NotDrawedPolygon)
+                {
+                    l2.Add(tmp);
+                }
+            }
+            var ddd = l2;
+        }
     }
 }

@@ -3,14 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using SharpDX;
 
-namespace GK_Project_4.Engine
+namespace SoftEngine
 {
     class DrawingSceneAlgorithm
     {
-        private class TemporaryVertexStructure
-        {
 
-        }
     }
 }

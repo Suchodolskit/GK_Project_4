@@ -1,4 +1,5 @@
 ﻿using SharpDX;
+using System.Collections.Generic;
 
 namespace SoftEngine
 {
@@ -11,9 +12,32 @@ namespace SoftEngine
     }
     public struct Vertex
     {
-        public Vector3 Normal;
-        public Vector3 Coordinates;
-        public Vector3 WorldCoordinates;
+        public Vector4 Normal;
+        public Vector4 Coordinates;
+        public Vector4 WorldCoordinates;
+
+        public override bool Equals(object obj)
+        {
+            if (!(obj is Vertex))
+            {
+                return false;
+            }
+
+            var vertex = (Vertex)obj;
+            return Normal.Equals(vertex.Normal) &&
+                   Coordinates.Equals(vertex.Coordinates) &&
+                   WorldCoordinates.Equals(vertex.WorldCoordinates);
+        }
+
+        public override int GetHashCode()
+        {
+            var hashCode = -1148142964;
+            hashCode = hashCode * -1521134295 + EqualityComparer<Vector4>.Default.GetHashCode(Normal);
+            hashCode = hashCode * -1521134295 + EqualityComparer<Vector4>.Default.GetHashCode(Coordinates);
+            hashCode = hashCode * -1521134295 + EqualityComparer<Vector4>.Default.GetHashCode(WorldCoordinates);
+            return hashCode;
+        }
+
         public static bool operator ==(Vertex v1, Vertex v2)
         {
             return v1.WorldCoordinates == v2.WorldCoordinates;
