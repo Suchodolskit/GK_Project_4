@@ -137,7 +137,6 @@ namespace SoftEngine
             };
         }
 
-
         // Rysuje punkty - wywołuje putpixel tylko wtedy gdy widzi, że pixel jest na ekranie
         public void DrawPoint(Vector3 point, System.Drawing.Color color)
         {
@@ -149,104 +148,53 @@ namespace SoftEngine
             }
         }
 
-        // renderowanie sceny w każdej klatce
-        public void Render(Camera camera, params Mesh[] meshes)
-        {
-            // Mcierz widoku
-            //var viewMatrix = Matrix.LookAtLH(camera.Position,camera.Target, Vector3.UnitY);
-            var viewMatrix = TransitionMatrices.LookAt(camera);
-
-            //transponowanie gdyż inna reprezentacja
-            viewMatrix.Transpose();
-
-
-            //macierz projekcji
-            var projectionMatrix = Matrix.PerspectiveFovRH(0.78f, (float)bmp.Width / bmp.Height, 0.01f, 1.0f);
-
-            var pm = TransitionMatrices.Prespective(0.78f, (float)bmp.Width / bmp.Height, 0.1f, 1.0f);
-            pm.Transpose();
-            projectionMatrix = pm;
-
-            foreach (Mesh mesh in meshes) 
-            {
-                // Macierz świata 
-                var worldMatrix = Matrix.RotationYawPitchRoll(mesh.Rotation.Y, mesh.Rotation.X, mesh.Rotation.Z) * Matrix.Translation(mesh.Position);
-
-                var wm2 = TransitionMatrices.Translation(mesh.Position)*TransitionMatrices.RotationZ(mesh.Rotation.Z) * TransitionMatrices.RotationY(mesh.Rotation.Y) * TransitionMatrices.RotationX(mesh.Rotation.X);
-                wm2.Transpose();
-                worldMatrix = wm2;
-
-                //macierz transormacji współrzędnych
-                var transformMatrix = worldMatrix * viewMatrix * projectionMatrix;
-
-
-                var faceIndex = 0;
-
-                // pętla po wszystkich stronach
-                foreach (var face in mesh.Faces)
-                {
-                    //pobranie pixeli ze strony
-                    var vertexA = mesh.Vertices[face.A];
-                    var vertexB = mesh.Vertices[face.B];
-                    var vertexC = mesh.Vertices[face.C];
-
-                    //przekształcenie ich do narysowania
-                    var pixelA = Project(vertexA, transformMatrix, worldMatrix);
-                    var pixelB = Project(vertexB, transformMatrix, worldMatrix);
-                    var pixelC = Project(vertexC, transformMatrix, worldMatrix);
-
-                    //rysowanie trójkąta
-                    //DrawTriangle(pixelA, pixelB, pixelC, face.Color);
-                    faceIndex++;
-                }
-            }
-        }
-
         public void MyRender(Camera camera, Mesh[][] meshes)
         {
             var viewMatrix = TransitionMatrices.LookAt(camera);
-            var ProjectionMatrix= TransitionMatrices.Prespective(0.8f, (float)480 / 640, -1.0f, 1.0f);
-
-            for (int fa = 0; fa < meshes.Length; fa++)
-            {
-                List<Polygon> l = new List<Polygon>();
-
-                foreach (var face in meshes[fa][0].Faces)
-                {
-                    var vertexA = meshes[fa][0].Vertices[face.A];
-                    var vertexB = meshes[fa][0].Vertices[face.B];
-                    var vertexC = meshes[fa][0].Vertices[face.C];
-                    Polygon p = new Polygon(face.Color, vertexA, vertexB, vertexC);
-
-                    var WorldMatrix = TransitionMatrices.RotationX(meshes[fa][0].Rotation.Y)*TransitionMatrices.RotationX(meshes[fa][0].Rotation.X)* TransitionMatrices.RotationX(meshes[fa][0].Rotation.Z)*TransitionMatrices.Translation(meshes[fa][0].Position);
+            var ProjectionMatrix= TransitionMatrices.Prespective(0.8f, (float)500/500, -0.1f, 0.1f);
 
 
-                    p.MakeTemporaryVertexStructureList(WorldMatrix, viewMatrix, ProjectionMatrix);
-                    p.ClipByCuttingPlanes();
-                    p.Computepprim();
-                    p.ClipByWindowSize();
-                    l.Add(p);
-                }
+            Parallel.For(0, meshes.Length, fa =>
+                 {
+                     List<Polygon> l = new List<Polygon>();
 
-                List<Polygon> l2 = new List<Polygon>();
+                     var WorldMatrix = TransitionMatrices.RotationX(meshes[fa][0].Rotation.Y) * TransitionMatrices.RotationX(meshes[fa][0].Rotation.X) * TransitionMatrices.RotationX(meshes[fa][0].Rotation.Z) * TransitionMatrices.Translation(meshes[fa][0].Position);
+
+                     foreach (var face in meshes[fa][0].Faces)
+                     {
+                         var vertexA = meshes[fa][0].Vertices[face.A];
+                         var vertexB = meshes[fa][0].Vertices[face.B];
+                         var vertexC = meshes[fa][0].Vertices[face.C];
+                         Polygon p = new Polygon(face.Color, vertexA, vertexB, vertexC);
 
 
-                foreach (var tmp in l)
-                {
-                    if (!tmp.NotDrawedPolygon)
-                    {
-                        l2.Add(tmp);
-                        var lis = tmp.PrepareEdgesToScanLineAlgorithm(renderWidth,renderHeight);
-                        Scanline s = new Scanline(this, lis);
-                        s.Fill(tmp.color);
-                    }
-                }
-            }
+
+                         p.MakeTemporaryVertexStructureList(WorldMatrix, viewMatrix, ProjectionMatrix);
+                         p.ClipByCuttingPlanes();
+                         p.Computepprim();
+                         p.ClipByWindowSize();
+                         l.Add(p);
+                     }
+
+                     List<Polygon> l2 = new List<Polygon>();
+
+
+                     foreach (var tmp in l)
+                     {
+                         if (!tmp.NotDrawedPolygon)
+                         {
+                             l2.Add(tmp);
+                             var lis = tmp.PrepareEdgesToScanLineAlgorithm(renderWidth, renderHeight);
+                             Scanline s = new Scanline(this, lis);
+                             s.Fill(tmp.color);
+                         }
+                     }
+                 });
             Present();
         }
 
         //wczytanie pliku JSONowego ze strkturą
-        public async Task<Mesh[]> LoadJSONFileAsync(string fileName, float scale=1.0f)
+        public async Task<Mesh[]> LoadJSONFileAsync(string fileName, bool IfRandomColores, System.Drawing.Color col,float scale = 1.0f)
         {
             var meshes = new List<Mesh>();
             // var file = await System.Windows.ApplicationModel.Package.Current.InstalledLocation.GetFileAsync(fileName);
@@ -320,7 +268,12 @@ namespace SoftEngine
                     var a = (int)indicesArray[index * 3].Value;
                     var b = (int)indicesArray[index * 3 + 1].Value;
                     var c = (int)indicesArray[index * 3 + 2].Value;
-                    mesh.Faces[index] = new Face { A = a, B = b, C = c,Color=System.Drawing.Color.FromArgb(255, r.Next() % 255, r.Next() % 255, r.Next() % 255) };
+                    if (IfRandomColores)
+                        mesh.Faces[index] = new Face { A = a, B = b, C = c, Color = System.Drawing.Color.FromArgb(255, r.Next() % 255, r.Next() % 255, r.Next() % 255) };
+                    else
+                    {
+                        mesh.Faces[index] = new Face { A = a, B = b, C = c, Color = col };
+                    }
                 }
 
                 // Getting the position you've set in Blender

@@ -9,6 +9,12 @@ namespace SoftEngine
         public int B;
         public int C;
         public System.Drawing.Color Color;
+        public Face Clone()
+        {
+            Face f = new Face();
+            f.A = A;f.B = B; f.C = C;f.Color = Color;
+            return f;
+        }
     }
     public struct Vertex
     {
@@ -46,6 +52,18 @@ namespace SoftEngine
         {
             return !(v1 == v2);
         }
+
+        public Vertex Clone()
+        {
+            var v1 = Normal;
+            var v2 = Coordinates;
+            var v3 = WorldCoordinates; 
+            Vertex ret = new Vertex();
+            ret.Normal = v1;
+            ret.Coordinates = v2;
+            ret.WorldCoordinates = v3;
+            return ret;
+        }
     }
     public class Mesh
     {
@@ -60,6 +78,22 @@ namespace SoftEngine
             Vertices = new Vertex[verticesCount];
             Faces = new Face[facesCount];
             Name = name;
+        }
+
+        public Mesh Clone()
+        {
+            var m = new Mesh(Name, Vertices.Length, Faces.Length);
+            for (int i = 0; i < Vertices.Length; i++)
+            {
+                m.Vertices[i] = Vertices[i].Clone();
+            }
+            for (int i = 0; i < Faces.Length; i++)
+            {
+                m.Faces[i] = Faces[i].Clone();
+            }
+            m.Position = Position;
+            m.Rotation = Rotation;
+            return m;
         }
     }
 }

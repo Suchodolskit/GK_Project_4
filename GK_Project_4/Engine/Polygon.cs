@@ -25,7 +25,6 @@ namespace SoftEngine
         public void MakeTemporaryVertexStructureList(Matrix transformMatrix, Matrix cameraMatrix, Matrix PerspectiveMatrix)
         {
             StructureList = new List<TemporaryVertexStructure>();
-            //var factory = new TemporaryVertexStructureFactory(transformMatrix, cameraPerspectiveMatrix);
             for (int i = 0; i < Vertices.Count; i++)
             {
                 StructureList.Add(new TemporaryVertexStructure(Vertices[i], transformMatrix, cameraMatrix, PerspectiveMatrix));
@@ -215,14 +214,21 @@ namespace SoftEngine
         public void ClipByWindowSize()
         {
             int tmp = 0;
+            float middlex = 0.0f;
+            float middley = 0.0f;
             for (int i = 0; i < StructureList.Count; i++)
             {
+                middlex += StructureList[i].pprim.X;
+                middley += StructureList[i].pprim.Y;
+
                 if (Math.Abs(StructureList[i].pprim.X) > 1 || Math.Abs(StructureList[i].pprim.Y) > 1)
                 {
                     tmp++;
                 }
             }
-            if (tmp == StructureList.Count) NotDrawedPolygon = true;
+            middlex /= StructureList.Count;
+            middley /= StructureList.Count;
+            if (tmp == StructureList.Count && Math.Abs(middlex) > 1 && Math.Abs(middley) > 1) NotDrawedPolygon = true;
         }
         public List<Edge> PrepareEdgesToScanLineAlgorithm(int width, int height)
         {

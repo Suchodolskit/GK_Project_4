@@ -23,57 +23,89 @@ namespace GK_Project_4
         }
 
         private Device device;
-        Mesh[][] meshes;
-        Camera mera = new Camera();
+        Mesh[][]meshes;
+        Camera camera = new Camera();
         Timer Rendring;
         double t = 0.0;
 
         void CompositionTarget_Rendering(object sender, object e)
         {
             device.Clear(255, 0, 0, 0);
-            t = t + 0.1;
-            mera.Position = new Vector3(mera.Position.X, mera.Position.Y-0.01f, mera.Position.Z);
-            //meshes[0][0].Rotation = new Vector3(meshes[0][0].Rotation.X, meshes[0][0].Rotation.Y, meshes[0][0].Rotation.Z + 0.1f);
+            t = t + 0.01;
+            camera.Up = new Vector3((float)(Math.Cos(t)), camera.Position.Y, (float)(Math.Sin(t)));
 
-            device.MyRender(mera, meshes);
+            device.MyRender(camera, meshes);
+
         }
 
         private async void Form1_Load(object sender, EventArgs e)
         {
-            // Choose the back buffer resolution here
-            DirectBitmap bmp = new DirectBitmap(640,480);
+            pictureBox1.Width = 500; pictureBox1.Height = 500;
+            DirectBitmap bmp = new DirectBitmap(500,500);
             device = new Device(bmp,pictureBox1);
-            pictureBox1.Image = bmp.Bitmap;
-            meshes = new Mesh[4][];
 
-            meshes[0] = await device.LoadJSONFileAsync(@"Meshes/Plate.babylon");
+            meshes = new Mesh[16][];
+
+            meshes[0] = await device.LoadJSONFileAsync(@"Meshes/Plate.babylon",false,System.Drawing.Color.DarkGreen,10);
             meshes[0][0].Position = new Vector3(0, 0, 0);
 
-            meshes[1] = await device.LoadJSONFileAsync(@"Meshes/Ball.babylon",0.2f);
-            meshes[1][0].Position = new Vector3(0, 0.2f, 0);
+            meshes[1] = await device.LoadJSONFileAsync(@"Meshes/Ball.babylon", true, System.Drawing.Color.DarkGreen, 0.5f);
+            meshes[1][0].Position = new Vector3(0, 0, 0);
 
-            meshes[2] = await device.LoadJSONFileAsync(@"Meshes/Ball.babylon", 0.2f);
-            meshes[2][0].Position = new Vector3(0.4f, 0.2f, 0);
+            var m = MakeBillardTriangle(meshes[1][0], new Vector3(0.0f,0.5f,-10.0f), 0.5f);
+            for (int i = 1; i <= m.Length; i++)
+            {
+                meshes[i] = m[i - 1];
+            }
 
-            meshes[3] = await device.LoadJSONFileAsync(@"Meshes/Ball.babylon", 0.2f);
-            meshes[3][0].Position = new Vector3(-0.4f, 0.2f, 0);
-
-            //meshes[2] = await device.LoadJSONFileAsync(@"Meshes/Ball.babylon", 0.2f);
-            //meshes[2][0].Position = new Vector3(0.4f, 0.2f, 0);
-
-            //meshes[0][0] = ProduceCube();
-
-
-
-            mera.Position = new Vector3(0, 2, 5);
-            mera.Target = new Vector3(0,0,0);
-            mera.Up = new Vector3(0, 1, 0);
+            camera.Position = new Vector3(0, 30, 0);
+            camera.Target = new Vector3(0,0,0);
+            camera.Up = new Vector3(0, 0, 0);
 
             Rendring = new Timer();
             Rendring.Tick += CompositionTarget_Rendering;
-            Rendring.Interval = 1;
+            Rendring.Interval = 50;
             Rendring.Start();
 
+        }
+
+        private Mesh[][] MakeBillardTriangle(Mesh ball, Vector3 Position, float radius)
+        {
+            Mesh[][] Balls = new Mesh[15][];
+            for (int i = 0; i < Balls.Length; i++)
+            {
+                Balls[i] = new Mesh[1];
+                Balls[i][0] = ball.Clone();
+                Balls[i][0].Position = Position;
+            }
+            float pos = -5.0f * radius;
+            for (int i = 0; i < 5; i++)
+            {
+                Balls[i][0].Position = new Vector3(Balls[i][0].Position.X + pos, Balls[i][0].Position.Y, Balls[i][0].Position.Z);
+                pos += 2 * radius;
+            }
+            pos = -4.0f * radius;
+            for (int i = 5; i < 9; i++)
+            {
+                Balls[i][0].Position = new Vector3(Balls[i][0].Position.X + pos, Balls[i][0].Position.Y, Balls[i][0].Position.Z + (float)Math.Sqrt(3) * radius);
+                pos += 2 * radius;
+            }
+            pos = -3.0f * radius;
+            for (int i = 9; i < 12; i++)
+            {
+                Balls[i][0].Position = new Vector3(Balls[i][0].Position.X + pos, Balls[i][0].Position.Y, Balls[i][0].Position.Z + (float)2 * (float)Math.Sqrt(3) * radius);
+                pos += 2 * radius;
+            }
+            pos = -2.0f * radius;
+            for (int i = 12; i < 14; i++)
+            {
+                Balls[i][0].Position = new Vector3(Balls[i][0].Position.X + pos, Balls[i][0].Position.Y, Balls[i][0].Position.Z + (float)3 * (float)Math.Sqrt(3) * radius);
+                pos += 2 * radius;
+            }
+            pos = -1.0f * radius;
+            Balls[14][0].Position = new Vector3(Balls[14][0].Position.X + pos, Balls[14][0].Position.Y, Balls[14][0].Position.Z + (float)4 * (float)Math.Sqrt(3) * radius);
+
+            return Balls;
         }
 
         private Mesh ProduceCube()
