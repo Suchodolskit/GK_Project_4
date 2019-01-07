@@ -53,9 +53,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Engine\Camera.cs" />
+    <Compile Include="Engine\PointLight.cs" />
     <Compile Include="Engine\Device.cs" />
     <Compile Include="Engine\DirectBitmap.cs" />
     <Compile Include="Engine\Edge.cs" />
+    <Compile Include="Engine\PhongIllumination.cs" />
     <Compile Include="Engine\Polygon.cs" />
     <Compile Include="Engine\Scanline.cs" />
     <Compile Include="Engine\TransitionMatrices.cs" />

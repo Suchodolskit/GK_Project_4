@@ -185,7 +185,7 @@ namespace SoftEngine
                          {
                              l2.Add(tmp);
                              var lis = tmp.PrepareEdgesToScanLineAlgorithm(renderWidth, renderHeight);
-                             Scanline s = new Scanline(this, lis);
+                             Scanline s = new Scanline(this, lis,camera,tmp.StructureList[0].nw);
                              s.Fill(tmp.color);
                          }
                      }

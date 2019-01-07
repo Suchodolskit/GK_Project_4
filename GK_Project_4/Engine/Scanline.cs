@@ -15,11 +15,15 @@ namespace SoftEngine
     {
         public List<Edge> Edges;
         public Device device;
+        public Camera camera;
+        public Vector4 NormalVector;
 
-        public Scanline(Device device, List<Edge> l)
+        public Scanline(Device device, List<Edge> l,Camera c,Vector4 n)
         {
             this.device = device;
             Edges = l;
+            camera = c;
+            NormalVector = n;
         }
 
         private class AETListElement
@@ -118,7 +122,17 @@ namespace SoftEngine
                         var z = Interpolate(z1, z2, gradient);
                         if (x >= 0)
                         {
-                            device.DrawPoint(new Vector3(x, i, -z), c);
+                            Vector3 ka = new Vector3(0.5f, 0.5f, 0.5f);
+                            Vector3 kd = new Vector3(0.5f, 0.5f, 0.5f);
+                            Vector3 ks = new Vector3(0.5f, 0.5f, 0.5f);
+                            Vector4 DrawingPoint = new Vector4(x, i, -z, 1);
+                            PointLight p = new PointLight(new Vector3(10, 10, 10), System.Drawing.Color.White);
+
+                            System.Drawing.Color col = PhongIllumination.Compute(ka, ks, ks, camera.Position, DrawingPoint, NormalVector, System.Drawing.Color.White, p, 10);
+
+
+
+                            device.DrawPoint(new Vector3(x, i, -z), col);
                         }
                     }
                     //for (int k = (int)AET[j].X; k <= (int)AET[j + 1].X; k++)
