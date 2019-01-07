@@ -122,9 +122,9 @@ namespace SoftEngine
                         var z = Interpolate(z1, z2, gradient);
                         if (x >= 0)
                         {
-                            Vector3 ka = new Vector3(0.5f, 0.5f, 0.5f);
-                            Vector3 kd = new Vector3(0.5f, 0.5f, 0.5f);
-                            Vector3 ks = new Vector3(0.5f, 0.5f, 0.5f);
+                            Vector3 ka = new Vector3(0.5f, 0.0f, 0.0f);
+                            Vector3 kd = new Vector3(0.5f, 0.0f, 0.0f);
+                            Vector3 ks = new Vector3(0.5f, 0.0f, 0.0f);
                             Vector4 DrawingPoint = new Vector4(x, i, -z, 1);
                             PointLight p = new PointLight(new Vector3(10, 10, 10), System.Drawing.Color.White);
 

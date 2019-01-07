@@ -20,12 +20,12 @@ namespace SoftEngine
             float IiG = (float)(light.color.G / 255);
             float IiB = (float)(light.color.B / 255);
             r = IaR * ka.X + IiR*( kd.X * Math.Max(Vector3.Dot((Vector3)SceneNormal, li), 0) + ks.X *(float)Math.Pow(Math.Max(Vector3.Dot((Vector3)SceneNormal, li), 0),m));
-            g = IaG * ka.X + IiG*( kd.X * Math.Max(Vector3.Dot((Vector3)SceneNormal, li), 0) + ks.X *(float)Math.Pow(Math.Max(Vector3.Dot((Vector3)SceneNormal, li), 0),m));
-            b = IaB * ka.X + IiB*( kd.X * Math.Max(Vector3.Dot((Vector3)SceneNormal, li), 0) + ks.X *(float)Math.Pow(Math.Max(Vector3.Dot((Vector3)SceneNormal, li), 0),m));
+            g = IaG * ka.Y + IiG*( kd.Y * Math.Max(Vector3.Dot((Vector3)SceneNormal, li), 0) + ks.Y *(float)Math.Pow(Math.Max(Vector3.Dot((Vector3)SceneNormal, li), 0),m));
+            b = IaB * ka.Z + IiB*( kd.Z * Math.Max(Vector3.Dot((Vector3)SceneNormal, li), 0) + ks.Z *(float)Math.Pow(Math.Max(Vector3.Dot((Vector3)SceneNormal, li), 0),m));
 
             int R =(int) (r * 255);
-            int G =(int) (r * 255);
-            int B =(int) (r * 255);
+            int G =(int) (g * 255);
+            int B =(int) (b * 255);
             if (R > 255) R = 255;
             if (G > 255) G = 255;
             if (B > 255) B = 255;

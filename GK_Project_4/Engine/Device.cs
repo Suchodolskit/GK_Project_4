@@ -94,9 +94,9 @@ namespace SoftEngine
             //wypełnienie bufforów
             ZBuffer[index] = z;
 
-            backBuffer[index4] = (byte)(color.R);
+            backBuffer[index4] = (byte)(color.B);
             backBuffer[index4 + 1] = (byte)(color.G);
-            backBuffer[index4 + 2] = (byte)(color.B);
+            backBuffer[index4 + 2] = (byte)(color.R);
             backBuffer[index4 + 3] = (byte)(color.A);
         }
 
