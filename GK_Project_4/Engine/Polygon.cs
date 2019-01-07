@@ -12,21 +12,23 @@ namespace SoftEngine
         List<Vertex> Vertices;
         public List<TemporaryVertexStructure> StructureList;
         public bool NotDrawedPolygon=false;
-        public Polygon(params Vertex[] tab)
+        public System.Drawing.Color color;
+        public Polygon(System.Drawing.Color c,params Vertex[] tab)
         {
+            color = c;
             Vertices = new List<Vertex>();
             for (int i = 0; i < tab.Length; i++)
             {
                 Vertices.Add(tab[i]);
             }
         }
-        public void MakeTemporaryVertexStructureList(Matrix transformMatrix, Matrix cameraPerspectiveMatrix)
+        public void MakeTemporaryVertexStructureList(Matrix transformMatrix, Matrix cameraMatrix, Matrix PerspectiveMatrix)
         {
             StructureList = new List<TemporaryVertexStructure>();
-            var factory = new TemporaryVertexStructureFactory(transformMatrix, cameraPerspectiveMatrix);
+            //var factory = new TemporaryVertexStructureFactory(transformMatrix, cameraPerspectiveMatrix);
             for (int i = 0; i < Vertices.Count; i++)
             {
-                StructureList.Add(new TemporaryVertexStructure(Vertices[i], transformMatrix, cameraPerspectiveMatrix));
+                StructureList.Add(new TemporaryVertexStructure(Vertices[i], transformMatrix, cameraMatrix, PerspectiveMatrix));
             }
         }
         public void ClipByCuttingPlanes()
@@ -255,11 +257,12 @@ namespace SoftEngine
         public Vector4 pprim;
         public Vector4 pbis;
 
-        public TemporaryVertexStructure(Vertex v, Matrix transformMatrix, Matrix CameraPerspectiveMatrix)
+        public TemporaryVertexStructure(Vertex v, Matrix transformMatrix, Matrix CameraMatrix, Matrix Perspective)
         {
             this.pw = transformMatrix.Multiply(v.Coordinates);
             this.nw = transformMatrix.Multiply(v.Normal);
-            this.pbis = CameraPerspectiveMatrix.Multiply(pw);
+            this.pbis = CameraMatrix.Multiply(pw);
+            pbis = Perspective.Multiply(pbis);
         }
         public TemporaryVertexStructure() { }
     }

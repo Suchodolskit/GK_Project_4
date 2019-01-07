@@ -53,10 +53,10 @@ namespace SoftEngine
             // czyszczenie back buffora
             for (var index = 0; index < backBuffer.Length; index += 4)
             {
-                backBuffer[index] = a;
-                backBuffer[index + 1] = r;
-                backBuffer[index + 2] = g;
-                backBuffer[index + 3] = b;
+                backBuffer[index] = r;
+                backBuffer[index + 1] = g;
+                backBuffer[index + 2] = b;
+                backBuffer[index + 3] = a;
             }
 
             // czyszczenie depth buffora
@@ -94,10 +94,10 @@ namespace SoftEngine
             //wypełnienie bufforów
             ZBuffer[index] = z;
 
-            backBuffer[index4] = (byte)(color.A);
-            backBuffer[index4 + 1] = (byte)(color.R);
-            backBuffer[index4 + 2] = (byte)(color.G);
-            backBuffer[index4 + 3] = (byte)(color.B);
+            backBuffer[index4] = (byte)(color.R);
+            backBuffer[index4 + 1] = (byte)(color.G);
+            backBuffer[index4 + 2] = (byte)(color.B);
+            backBuffer[index4 + 3] = (byte)(color.A);
         }
 
         public Vertex Project(Vertex vertex, Matrix transMat, Matrix world)
@@ -270,14 +270,14 @@ namespace SoftEngine
 
                 // Then filling the Faces array
 
-
+                Random r = new Random();
 
                 for (var index = 0; index < facesCount; index++)
                 {
                     var a = (int)indicesArray[index * 3].Value;
                     var b = (int)indicesArray[index * 3 + 1].Value;
                     var c = (int)indicesArray[index * 3 + 2].Value;
-                    mesh.Faces[index] = new Face { A = a, B = b, C = c,Color=System.Drawing.Color.Green};
+                    mesh.Faces[index] = new Face { A = a, B = b, C = c,Color=System.Drawing.Color.FromArgb(255, r.Next() % 255, r.Next() % 255, r.Next() % 255) };
                 }
 
                 // Getting the position you've set in Blender
