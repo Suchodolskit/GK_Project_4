@@ -196,21 +196,64 @@ namespace SoftEngine
                     var pixelC = Project(vertexC, transformMatrix, worldMatrix);
 
                     //rysowanie trójkąta
-                    DrawTriangle(pixelA, pixelB, pixelC, face.Color);
+                    //DrawTriangle(pixelA, pixelB, pixelC, face.Color);
                     faceIndex++;
                 }
             }
         }
 
+        public void MyRender(Camera camera, Mesh[][] meshes)
+        {
+            var viewMatrix = TransitionMatrices.LookAt(camera);
+            var ProjectionMatrix= TransitionMatrices.Prespective(0.8f, (float)480 / 640, -1.0f, 1.0f);
+
+            for (int fa = 0; fa < meshes.Length; fa++)
+            {
+                List<Polygon> l = new List<Polygon>();
+
+                foreach (var face in meshes[fa][0].Faces)
+                {
+                    var vertexA = meshes[fa][0].Vertices[face.A];
+                    var vertexB = meshes[fa][0].Vertices[face.B];
+                    var vertexC = meshes[fa][0].Vertices[face.C];
+                    Polygon p = new Polygon(face.Color, vertexA, vertexB, vertexC);
+
+                    var WorldMatrix = TransitionMatrices.RotationX(meshes[fa][0].Rotation.Y)*TransitionMatrices.RotationX(meshes[fa][0].Rotation.X)* TransitionMatrices.RotationX(meshes[fa][0].Rotation.Z)*TransitionMatrices.Translation(meshes[fa][0].Position);
+
+
+                    p.MakeTemporaryVertexStructureList(WorldMatrix, viewMatrix, ProjectionMatrix);
+                    p.ClipByCuttingPlanes();
+                    p.Computepprim();
+                    p.ClipByWindowSize();
+                    l.Add(p);
+                }
+
+                List<Polygon> l2 = new List<Polygon>();
+
+
+                foreach (var tmp in l)
+                {
+                    if (!tmp.NotDrawedPolygon)
+                    {
+                        l2.Add(tmp);
+                        var lis = tmp.PrepareEdgesToScanLineAlgorithm(renderWidth,renderHeight);
+                        Scanline s = new Scanline(this, lis);
+                        s.Fill(tmp.color);
+                    }
+                }
+            }
+            Present();
+        }
+
         //wczytanie pliku JSONowego ze strkturą
-        public async Task<Mesh[]> LoadJSONFileAsync(string fileName)
+        public async Task<Mesh[]> LoadJSONFileAsync(string fileName, float scale=1.0f)
         {
             var meshes = new List<Mesh>();
             // var file = await System.Windows.ApplicationModel.Package.Current.InstalledLocation.GetFileAsync(fileName);
             //var data = await Windows.Storage.FileIO.ReadTextAsync(file);
             //string path = @"D:ProgramerenEngine ProjectSoftEngineSoftEngine" + fileName;
 
-            string path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), @"torus.babylon");
+            string path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), fileName);
 
             string data;
 
@@ -258,9 +301,9 @@ namespace SoftEngine
                 // Filling the Vertices array of our mesh first
                 for (var index = 0; index < verticesCount; index++)
                 {
-                    var x = (float)verticesArray[index * verticesStep].Value;
-                    var y = (float)verticesArray[index * verticesStep + 1].Value;
-                    var z = (float)verticesArray[index * verticesStep + 2].Value;
+                    var x = (float)verticesArray[index * verticesStep].Value*scale;
+                    var y = (float)verticesArray[index * verticesStep + 1].Value*scale;
+                    var z = (float)verticesArray[index * verticesStep + 2].Value*scale;
                     // Loading the vertex normal exported by Blender
                     var nx = (float)verticesArray[index * verticesStep + 3].Value;
                     var ny = (float)verticesArray[index * verticesStep + 4].Value;
@@ -288,178 +331,5 @@ namespace SoftEngine
             return meshes.ToArray();
         }
 
-        // przycinanie do odpowiedniej wartości
-        float Clamp(float value, float min = 0, float max = 1)
-        {
-            return Math.Max(min, Math.Min(value, max));
-        }
-
-        // Interpolating the value between 2 vertices 
-        // min is the starting point, max the ending point
-        // and gradient the % between the 2 points
-        float Interpolate(float min, float max, float gradient)
-        {
-            return min + (max - min) * Clamp(gradient);
-        }
-
-        // drawing line between 2 points from left to right
-        // papb -> pcpd
-        // pa, pb, pc, pd must then be sorted before
-
-
-        // drawing line between 2 points from left to right
-        // papb -> pcpd
-        // pa, pb, pc, pd must then be sorted before
-        void ProcessScanLine(ScanLineData data, Vertex va, Vertex vb, Vertex vc, Vertex vd, System.Drawing.Color color)
-        {
-            Vector4 pa = va.Coordinates;
-            Vector4 pb = vb.Coordinates;
-            Vector4 pc = vc.Coordinates;
-            Vector4 pd = vd.Coordinates;
-
-            // Thanks to current Y, we can compute the gradient to compute others values like
-            // the starting X (sx) and ending X (ex) to draw between
-            // if pa.Y == pb.Y or pc.Y == pd.Y, gradient is forced to 1
-            var gradient1 = pa.Y != pb.Y ? (data.currentY - pa.Y) / (pb.Y - pa.Y) : 1;
-            var gradient2 = pc.Y != pd.Y ? (data.currentY - pc.Y) / (pd.Y - pc.Y) : 1;
-
-            int sx = (int)Interpolate(pa.X, pb.X, gradient1);
-            int ex = (int)Interpolate(pc.X, pd.X, gradient2);
-
-            // starting Z & ending Z
-            float z1 = Interpolate(pa.Z, pb.Z, gradient1);
-            float z2 = Interpolate(pc.Z, pd.Z, gradient2);
-
-            var snl = Interpolate(data.ndotla, data.ndotlb, gradient1);
-            var enl = Interpolate(data.ndotlc, data.ndotld, gradient2);
-
-            // drawing a line from left (sx) to right (ex) 
-            for (var x = sx; x < ex; x++)
-            {
-                float gradient = (x - sx) / (float)(ex - sx);
-
-                var z = Interpolate(z1, z2, gradient);
-                var ndotl = Interpolate(snl, enl, gradient);
-                // changing the color value using the cosine of the angle
-                // between the light vector and the normal vector
-                DrawPoint(new Vector3(x, data.currentY, z), color.Multiply(ndotl));
-            }
-        }
-
-        public void DrawTriangle(Vertex v1, Vertex v2, Vertex v3, System.Drawing.Color color)
-        {
-            // Sorting the points in order to always have this order on screen p1, p2 & p3
-            // with p1 always up (thus having the Y the lowest possible to be near the top screen)
-            // then p2 between p1 & p3
-            if (v1.Coordinates.Y > v2.Coordinates.Y)
-            {
-                var temp = v2;
-                v2 = v1;
-                v1 = temp;
-            }
-
-            if (v2.Coordinates.Y > v3.Coordinates.Y)
-            {
-                var temp = v2;
-                v2 = v3;
-                v3 = temp;
-            }
-
-            if (v1.Coordinates.Y > v2.Coordinates.Y)
-            {
-                var temp = v2;
-                v2 = v1;
-                v1 = temp;
-            }
-
-            Vector4 p1 = v1.Coordinates;
-            Vector4 p2 = v2.Coordinates;
-            Vector4 p3 = v3.Coordinates;
-
-            // Light position 
-            Vector3 lightPos = new Vector3(0, 10, 10);
-            // computing the cos of the angle between the light vector and the normal vector
-            // it will return a value between 0 and 1 that will be used as the intensity of the color
-            float nl1 = ComputeNDotL((Vector3)v1.WorldCoordinates, (Vector3)v1.Normal, lightPos);
-            float nl2 = ComputeNDotL((Vector3)v2.WorldCoordinates, (Vector3)v2.Normal, lightPos);
-            float nl3 = ComputeNDotL((Vector3)v3.WorldCoordinates, (Vector3)v3.Normal, lightPos);
-
-            var data = new ScanLineData { };
-
-            // computing lines' directions
-            float dP1P2, dP1P3;
-
-            // http://en.wikipedia.org/wiki/Slope
-            // Computing slopes
-            if (p2.Y - p1.Y > 0)
-                dP1P2 = (p2.X - p1.X) / (p2.Y - p1.Y);
-            else
-                dP1P2 = 0;
-
-            if (p3.Y - p1.Y > 0)
-                dP1P3 = (p3.X - p1.X) / (p3.Y - p1.Y);
-            else
-                dP1P3 = 0;
-
-            if (dP1P2 > dP1P3)
-            {
-                for (var y = (int)p1.Y; y <= (int)p3.Y; y++)
-                {
-                    data.currentY = y;
-
-                    if (y < p2.Y)
-                    {
-                        data.ndotla = nl1;
-                        data.ndotlb = nl3;
-                        data.ndotlc = nl1;
-                        data.ndotld = nl2;
-                        ProcessScanLine(data, v1, v3, v1, v2, color);
-                    }
-                    else
-                    {
-                        data.ndotla = nl1;
-                        data.ndotlb = nl3;
-                        data.ndotlc = nl2;
-                        data.ndotld = nl3;
-                        ProcessScanLine(data, v1, v3, v2, v3, color);
-                    }
-                }
-            }
-            else
-            {
-                for (var y = (int)p1.Y; y <= (int)p3.Y; y++)
-                {
-                    data.currentY = y;
-
-                    if (y < p2.Y)
-                    {
-                        data.ndotla = nl1;
-                        data.ndotlb = nl2;
-                        data.ndotlc = nl1;
-                        data.ndotld = nl3;
-                        ProcessScanLine(data, v1, v2, v1, v3, color);
-                    }
-                    else
-                    {
-                        data.ndotla = nl2;
-                        data.ndotlb = nl3;
-                        data.ndotlc = nl1;
-                        data.ndotld = nl3;
-                        ProcessScanLine(data, v2, v3, v1, v3, color);
-                    }
-                }
-            }
-        }
-
-
-        float ComputeNDotL(Vector3 vertex, Vector3 normal, Vector3 lightPosition)
-        {
-            var lightDirection = lightPosition - vertex;
-
-            normal.Normalize();
-            lightDirection.Normalize();
-
-            return Math.Max(0, Vector3.Dot(normal, lightDirection));
-        }
     }
 }

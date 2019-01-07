@@ -28,71 +28,14 @@ namespace GK_Project_4
         Timer Rendring;
         double t = 0.0;
 
-        // Rendering loop handler
         void CompositionTarget_Rendering(object sender, object e)
         {
-            //device.Clear(255, 0, 0, 0);
-
-            //t += 0.001;
-            //for (int i = 0; i < 1; i++)
-            //{
-            //    // rotating slightly the cube during each frame rendered
-            //    foreach (var mesh in meshes[i])
-            //    {
-            //        // rotating slightly the meshes during each frame rendered
-            //        //mesh.Rotation = new Vector3(mesh.Rotation.X + 0.05f, mesh.Rotation.Y, mesh.Rotation.Z);
-            //        //mesh.Position = new Vector3(mesh.Position.X, mesh.Position.Y, mesh.Position.Z - 0.1f);
-            //        mera.Position = new Vector3((float)(10 * Math.Cos(t)), (float)(10 * Math.Sin(t)),mera.Position.Z );
-            //    }
-            //    // Doing the various matrix operations
-            //    device.Render(mera, meshes[i]);
-            //}
-
-            //// Flushing the back buffer into the front buffer
-            //device.Present();
-
             device.Clear(255, 0, 0, 0);
-            t = t + 0.01;
-            mera.Position = new Vector3(mera.Position.X, mera.Position.Y, mera.Position.Z);
+            t = t + 0.1;
+            mera.Position = new Vector3(mera.Position.X, mera.Position.Y-0.01f, mera.Position.Z);
+            //meshes[0][0].Rotation = new Vector3(meshes[0][0].Rotation.X, meshes[0][0].Rotation.Y, meshes[0][0].Rotation.Z + 0.1f);
 
-            for (int fa = 0; fa < 4; fa++)
-            {
-                List<Polygon> l = new List<Polygon>();
-
-                foreach (var face in meshes[fa][0].Faces)
-                {
-                    var vertexA = meshes[fa][0].Vertices[face.A];
-                    var vertexB = meshes[fa][0].Vertices[face.B];
-                    var vertexC = meshes[fa][0].Vertices[face.C];
-                    Polygon p = new Polygon(face.Color, vertexA, vertexB, vertexC);
-
-                    var viewMatrix = TransitionMatrices.LookAt(mera);
-                    var rrr = TransitionMatrices.Prespective(0.8f, (float)480 / 640, -1.0f, 1.0f);
-                    Matrix m = TransitionMatrices.Translation(meshes[fa][0].Position);
-
-                    p.MakeTemporaryVertexStructureList(m, viewMatrix, rrr);
-                    p.ClipByCuttingPlanes();
-                    p.Computepprim();
-                    p.ClipByWindowSize();
-                    l.Add(p);
-                }
-
-                List<Polygon> l2 = new List<Polygon>();
-
-
-                foreach (var tmp in l)
-                {
-                    if (!tmp.NotDrawedPolygon)
-                    {
-                        l2.Add(tmp);
-                        var lis = tmp.PrepareEdgesToScanLineAlgorithm(device.renderWidth, device.renderHeight);
-                        Scanline s = new Scanline(device, lis);
-
-                        s.Fill(tmp.color);
-                    }
-                }
-            }
-            device.Present();
+            device.MyRender(mera, meshes);
         }
 
         private async void Form1_Load(object sender, EventArgs e)
@@ -102,16 +45,27 @@ namespace GK_Project_4
             device = new Device(bmp,pictureBox1);
             pictureBox1.Image = bmp.Bitmap;
             meshes = new Mesh[4][];
-            for (int i = 0; i < 4; i++)
-            {
-                meshes[i] = await device.LoadJSONFileAsync("dd");
-                meshes[i][0].Position = new Vector3(0, i, 0);
-            }
+
+            meshes[0] = await device.LoadJSONFileAsync(@"Meshes/Plate.babylon");
+            meshes[0][0].Position = new Vector3(0, 0, 0);
+
+            meshes[1] = await device.LoadJSONFileAsync(@"Meshes/Ball.babylon",0.2f);
+            meshes[1][0].Position = new Vector3(0, 0.2f, 0);
+
+            meshes[2] = await device.LoadJSONFileAsync(@"Meshes/Ball.babylon", 0.2f);
+            meshes[2][0].Position = new Vector3(0.4f, 0.2f, 0);
+
+            meshes[3] = await device.LoadJSONFileAsync(@"Meshes/Ball.babylon", 0.2f);
+            meshes[3][0].Position = new Vector3(-0.4f, 0.2f, 0);
+
+            //meshes[2] = await device.LoadJSONFileAsync(@"Meshes/Ball.babylon", 0.2f);
+            //meshes[2][0].Position = new Vector3(0.4f, 0.2f, 0);
+
             //meshes[0][0] = ProduceCube();
 
 
 
-            mera.Position = new Vector3(0, 0, 10);
+            mera.Position = new Vector3(0, 2, 5);
             mera.Target = new Vector3(0,0,0);
             mera.Up = new Vector3(0, 1, 0);
 

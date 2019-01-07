@@ -55,7 +55,6 @@
     <Compile Include="Engine\Camera.cs" />
     <Compile Include="Engine\Device.cs" />
     <Compile Include="Engine\DirectBitmap.cs" />
-    <Compile Include="Engine\DrawingSceneAlgorithm.cs" />
     <Compile Include="Engine\Edge.cs" />
     <Compile Include="Engine\Polygon.cs" />
     <Compile Include="Engine\Scanline.cs" />
@@ -82,6 +81,12 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <None Include="Meshes\Ball.babylon">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Meshes\Plate.babylon">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
@@ -92,8 +97,8 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <None Include="torus.babylon">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    <None Include="Meshes\torus.babylon">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
   <ItemGroup>

@@ -139,9 +139,6 @@ namespace SoftEngine
             return Math.Max(min, Math.Min(value, max));
         }
 
-        // Interpolating the value between 2 vertices 
-        // min is the starting point, max the ending point
-        // and gradient the % between the 2 points
         float Interpolate(float min, float max, float gradient)
         {
             return min + (max - min) * Clamp(gradient);
