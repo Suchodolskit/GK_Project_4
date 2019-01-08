@@ -32,7 +32,7 @@ namespace GK_Project_4
         {
             device.Clear(255, 0, 0, 0);
             t = t + 0.01;
-            camera.Up = new Vector3((float)(Math.Cos(t)), camera.Position.Y, (float)(Math.Sin(t)));
+           // camera.Up = new Vector3((float)(Math.Cos(t)), camera.Position.Y, (float)(Math.Sin(t)));
 
             device.MyRender(camera, meshes);
 
@@ -49,7 +49,7 @@ namespace GK_Project_4
             meshes[0] = await device.LoadJSONFileAsync(@"Meshes/Plate.babylon",false,System.Drawing.Color.DarkGreen,10);
             meshes[0][0].Position = new Vector3(0, 0, 0);
 
-            meshes[1] = await device.LoadJSONFileAsync(@"Meshes/Ball.babylon", true, System.Drawing.Color.DarkGreen, 0.5f);
+            meshes[1] = await device.LoadJSONFileAsync(@"Meshes/Ball.babylon", false, System.Drawing.Color.Coral, 0.5f);
             meshes[1][0].Position = new Vector3(0, 0, 0);
 
             var m = MakeBillardTriangle(meshes[1][0], new Vector3(0.0f,0.5f,-10.0f), 0.5f);
@@ -58,9 +58,9 @@ namespace GK_Project_4
                 meshes[i] = m[i - 1];
             }
 
-            camera.Position = new Vector3(0, 30, 0);
+            camera.Position = new Vector3(0, 50, 0);
             camera.Target = new Vector3(0,0,0);
-            camera.Up = new Vector3(0, 0, 0);
+            camera.Up = new Vector3(0, 0, 1);
 
             Rendring = new Timer();
             Rendring.Tick += CompositionTarget_Rendering;

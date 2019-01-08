@@ -153,43 +153,45 @@ namespace SoftEngine
             var viewMatrix = TransitionMatrices.LookAt(camera);
             var ProjectionMatrix= TransitionMatrices.Prespective(0.8f, (float)500/500, -0.1f, 0.1f);
 
+            for (int fa = 0; fa < meshes.Length; fa++)
+            {
+                //Parallel.For(0, meshes.Length, fa =>
+                //     {
+                List<Polygon> l = new List<Polygon>();
 
-            Parallel.For(0, meshes.Length, fa =>
-                 {
-                     List<Polygon> l = new List<Polygon>();
+                var WorldMatrix = TransitionMatrices.RotationX(meshes[fa][0].Rotation.Y) * TransitionMatrices.RotationX(meshes[fa][0].Rotation.X) * TransitionMatrices.RotationX(meshes[fa][0].Rotation.Z) * TransitionMatrices.Translation(meshes[fa][0].Position);
 
-                     var WorldMatrix = TransitionMatrices.RotationX(meshes[fa][0].Rotation.Y) * TransitionMatrices.RotationX(meshes[fa][0].Rotation.X) * TransitionMatrices.RotationX(meshes[fa][0].Rotation.Z) * TransitionMatrices.Translation(meshes[fa][0].Position);
-
-                     foreach (var face in meshes[fa][0].Faces)
-                     {
-                         var vertexA = meshes[fa][0].Vertices[face.A];
-                         var vertexB = meshes[fa][0].Vertices[face.B];
-                         var vertexC = meshes[fa][0].Vertices[face.C];
-                         Polygon p = new Polygon(face.Color, vertexA, vertexB, vertexC);
-
-
-
-                         p.MakeTemporaryVertexStructureList(WorldMatrix, viewMatrix, ProjectionMatrix);
-                         p.ClipByCuttingPlanes();
-                         p.Computepprim();
-                         p.ClipByWindowSize();
-                         l.Add(p);
-                     }
-
-                     List<Polygon> l2 = new List<Polygon>();
+                foreach (var face in meshes[fa][0].Faces)
+                {
+                    var vertexA = meshes[fa][0].Vertices[face.A];
+                    var vertexB = meshes[fa][0].Vertices[face.B];
+                    var vertexC = meshes[fa][0].Vertices[face.C];
+                    Polygon p = new Polygon(face.Color, vertexA, vertexB, vertexC);
 
 
-                     foreach (var tmp in l)
-                     {
-                         if (!tmp.NotDrawedPolygon)
-                         {
-                             l2.Add(tmp);
-                             var lis = tmp.PrepareEdgesToScanLineAlgorithm(renderWidth, renderHeight);
-                             Scanline s = new Scanline(this, lis,camera,tmp.StructureList[0].nw);
-                             s.Fill(tmp.color);
-                         }
-                     }
-                 });
+
+                    p.MakeTemporaryVertexStructureList(WorldMatrix, viewMatrix, ProjectionMatrix);
+                    p.ClipByCuttingPlanes();
+                    p.Computepprim();
+                    p.ClipByWindowSize();
+                    l.Add(p);
+                }
+
+                List<Polygon> l2 = new List<Polygon>();
+
+
+                foreach (var tmp in l)
+                {
+                    if (!tmp.NotDrawedPolygon)
+                    {
+                        l2.Add(tmp);
+                        var lis = tmp.PrepareEdgesToScanLineAlgorithm(renderWidth, renderHeight);
+                        Scanline s = new Scanline(this, lis, camera, tmp.StructureList[0].nw);
+                        s.Fill(tmp.color);
+                    }
+                }
+                //   });
+            }
             Present();
         }
 

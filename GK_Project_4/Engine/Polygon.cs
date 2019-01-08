@@ -234,13 +234,24 @@ namespace SoftEngine
         {
             if (NotDrawedPolygon) return null;
             List<Edge> Scanlinelist = new List<Edge>();
-            for (int i = 0; i < StructureList.Count-1; i++)
+            for (int i = 0; i < StructureList.Count; i++)
             {
-                Edge e = new Edge( TransformToBitmapCoordinates(StructureList[i].pprim,width,height), TransformToBitmapCoordinates(StructureList[i + 1].pprim,width,height));
+                int j = (i + 1) % StructureList.Count;
+                TemporaryVertexStructure ts1 = new TemporaryVertexStructure();
+                ts1.nw = StructureList[i].nw;
+                ts1.pbis = StructureList[i].pbis;
+                ts1.pw = StructureList[i].pw;
+                ts1.pprim = TransformToBitmapCoordinates(StructureList[i].pprim, width, height);
+
+                TemporaryVertexStructure ts2 = new TemporaryVertexStructure();
+                ts2.nw = StructureList[j].nw;
+                ts2.pbis = StructureList[j].pbis;
+                ts2.pw = StructureList[j].pw;
+                ts2.pprim = TransformToBitmapCoordinates(StructureList[j].pprim, width, height);
+
+                Edge e = new Edge(ts1, ts2);
                 Scanlinelist.Add(e);
             }
-            Edge f = new Edge( TransformToBitmapCoordinates(StructureList[StructureList.Count-1].pprim,width,height), TransformToBitmapCoordinates(StructureList[0].pprim,width,height));
-            Scanlinelist.Add(f);
             return Scanlinelist;
         }
         public Vector4 TransformToBitmapCoordinates(Vector4 v, int width, int height)

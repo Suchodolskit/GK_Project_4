@@ -51,21 +51,21 @@ namespace SoftEngine
             List<AETListElement>[] tab = new List<AETListElement>[device.bmp.Height+1];
             foreach (var e in Edges)
             {
-                if(e.vertex1.Y<0)
+                if (e.vertex1.pprim.Y < 0)
                 {
-                    e.vertex1.Y = 0;
+                    e.vertex1.pprim.Y = 0;
                 }
-                if (e.vertex2.Y < 0)
+                if (e.vertex2.pprim.Y < 0)
                 {
-                    e.vertex2.Y = 0;
+                    e.vertex2.pprim.Y = 0;
                 }
-                if (e.vertex1.Y >= tab.Length)
+                if (e.vertex1.pprim.Y >= tab.Length)
                 {
-                    e.vertex1.Y = tab.Length-1;
+                    e.vertex1.pprim.Y = tab.Length - 1;
                 }
-                if (e.vertex2.Y >= tab.Length)
+                if (e.vertex2.pprim.Y >= tab.Length)
                 {
-                    e.vertex2.Y = tab.Length-1;
+                    e.vertex2.pprim.Y = tab.Length - 1;
                 }
 
                 if (e.LowerPoint().Y < minY) minY = (int)e.LowerPoint().Y;
@@ -122,23 +122,19 @@ namespace SoftEngine
                         var z = Interpolate(z1, z2, gradient);
                         if (x >= 0)
                         {
-                            Vector3 ka = new Vector3(0.5f, 0.0f, 0.0f);
-                            Vector3 kd = new Vector3(0.5f, 0.0f, 0.0f);
-                            Vector3 ks = new Vector3(0.5f, 0.0f, 0.0f);
+                            Vector3 ka = new Vector3((float)c.R / 255, (float)c.G / 255, (float)c.B / 255);
+                            Vector3 ks = new Vector3((float)c.R / 255, (float)c.G / 255, (float)c.B / 255);
+                            Vector3 kd = new Vector3((float)c.R / 255, (float)c.G / 255, (float)c.B / 255);
                             Vector4 DrawingPoint = new Vector4(x, i, -z, 1);
-                            PointLight p = new PointLight(new Vector3(10, 10, 10), System.Drawing.Color.White);
+                            PointLight p = new PointLight(new Vector3(1, 1, 1), System.Drawing.Color.Black);
 
-                            System.Drawing.Color col = PhongIllumination.Compute(ka, ks, ks, camera.Position, DrawingPoint, NormalVector, System.Drawing.Color.White, p, 10);
+                            System.Drawing.Color col = PhongIllumination.Compute(ka, kd, ks, camera.Position, DrawingPoint, NormalVector, System.Drawing.Color.White, p, 10);
 
 
 
                             device.DrawPoint(new Vector3(x, i, -z), col);
                         }
                     }
-                    //for (int k = (int)AET[j].X; k <= (int)AET[j + 1].X; k++)
-                    //{
-                    //    device.DrawPoint(new Vector3(k, i, 1), c);
-                    //}
                 }
 
                 i++;
