@@ -11,13 +11,11 @@ namespace SoftEngine
     {
         List<Vertex> Vertices;
 
-        //public List<TemporaryVertexStructure> StructureList;
-
-        public bool NotDrawedPolygon=false;
+        public bool NotDrawedPolygon = false;
 
         public System.Drawing.Color color;
 
-        public Polygon(System.Drawing.Color c,params Vertex[] tab)
+        public Polygon(System.Drawing.Color c, params Vertex[] tab)
         {
             color = c;
             Vertices = new List<Vertex>();
@@ -28,11 +26,6 @@ namespace SoftEngine
         }
         public void MakeTemporaryVertexStructureList(Matrix transformMatrix, Matrix cameraMatrix, Matrix PerspectiveMatrix)
         {
-            //StructureList = new List<TemporaryVertexStructure>();
-            //for (int i = 0; i < Vertices.Count; i++)
-            //{
-            //    StructureList.Add(new TemporaryVertexStructure(Vertices[i], transformMatrix, cameraMatrix, PerspectiveMatrix));
-            //}
             for (int i = 0; i < Vertices.Count; i++)
             {
                 var tmp = Vertices[i].Clone();
@@ -46,15 +39,6 @@ namespace SoftEngine
 
         public void ClipByCuttingPlanes()
         {
-            //for (int i = 0; i < StructureList.Count; i++)
-            //{
-            //    if (StructureList[i].pbis.Z < 0 || StructureList[i].pbis.Z > StructureList[i].pbis.W)
-            //    {
-            //        NotDrawedPolygon = true;
-            //        return;
-            //    }
-            //}
-
             for (int i = 0; i < Vertices.Count; i++)
             {
                 if (Vertices[i].pbis.Z < 0 || Vertices[i].pbis.Z > Vertices[i].pbis.W)
@@ -242,11 +226,6 @@ namespace SoftEngine
 
         public void Computepprim()
         {
-            //for (int i = 0; i < StructureList.Count; i++)
-            //{
-            //    StructureList[i].pprim = Vector4.Divide(StructureList[i].pbis, StructureList[i].pbis.W);
-            //}
-
             for (int i = 0; i < Vertices.Count; i++)
             {
                 Vertex tmp = Vertices[i].Clone();
@@ -254,48 +233,29 @@ namespace SoftEngine
                 Vertices[i] = tmp;
             }
         }
-        //public void ClipByWindowSize()
-        //{
-        //    int tmp = 0;
-        //    float middlex = 0.0f;
-        //    float middley = 0.0f;
-        //    for (int i = 0; i < StructureList.Count; i++)
-        //    {
-        //        middlex += StructureList[i].pprim.X;
-        //        middley += StructureList[i].pprim.Y;
+        public void ClipByWindowSize()
+        {
+            int tmp = 0;
+            float middlex = 0.0f;
+            float middley = 0.0f;
+            for (int i = 0; i < Vertices.Count; i++)
+            {
+                middlex += Vertices[i].pprim.X;
+                middley += Vertices[i].pprim.Y;
 
-        //        if (Math.Abs(StructureList[i].pprim.X) > 1 || Math.Abs(StructureList[i].pprim.Y) > 1)
-        //        {
-        //            tmp++;
-        //        }
-        //    }
-        //    middlex /= StructureList.Count;
-        //    middley /= StructureList.Count;
-        //    if (tmp == StructureList.Count && Math.Abs(middlex) > 1 && Math.Abs(middley) > 1) NotDrawedPolygon = true;
-        //}
+                if (Math.Abs(Vertices[i].pprim.X) > 1 || Math.Abs(Vertices[i].pprim.Y) > 1)
+                {
+                    tmp++;
+                }
+            }
+            middlex /= Vertices.Count;
+            middley /= Vertices.Count;
+            if (tmp == Vertices.Count && Math.Abs(middlex) > 1 && Math.Abs(middley) > 1) NotDrawedPolygon = true;
+        }
         public List<Edge> PrepareEdgesToScanLineAlgorithm(int width, int height)
         {
             if (NotDrawedPolygon) return null;
             List<Edge> Scanlinelist = new List<Edge>();
-            //for (int i = 0; i < StructureList.Count; i++)
-            //{
-            //    int j = (i + 1) % StructureList.Count;
-            //    TemporaryVertexStructure t1 = new TemporaryVertexStructure();
-            //    t1.nw = StructureList[i].nw;
-            //    t1.pw = StructureList[i].pw;
-            //    t1.pbis = StructureList[i].pbis;
-            //    t1.pprim = TransformToBitmapCoordinates(StructureList[i].pprim, width, height);
-
-            //    TemporaryVertexStructure t2 = new TemporaryVertexStructure();
-            //    t2.nw = StructureList[j].nw;
-            //    t2.pw = StructureList[j].pw;
-            //    t2.pbis = StructureList[j].pbis;
-            //    t2.pprim = TransformToBitmapCoordinates(StructureList[j].pprim, width, height);
-
-            //    Edge e = new Edge(t1, t2);
-            //    Scanlinelist.Add(e);
-
-            //}
 
             for (int i = 0; i < Vertices.Count; i++)
             {
@@ -325,26 +285,10 @@ namespace SoftEngine
             Vector4 tmp = new Vector4();
             tmp.W = 1;
             tmp.X = (v.X + 1) * w / 2;
-            tmp.Y= (-v.Y + 1) * h / 2;
+            tmp.Y = (-v.Y + 1) * h / 2;
             tmp.Z = v.Z;
             return tmp;
         }
 
     }
-    //public class TemporaryVertexStructure
-    //{
-    //    public Vector4 pw;
-    //    public Vector4 nw;
-    //    public Vector4 pprim;
-    //    public Vector4 pbis;
-
-    //    public TemporaryVertexStructure(Vertex v, Matrix transformMatrix, Matrix CameraMatrix, Matrix Perspective)
-    //    {
-    //        this.pw = transformMatrix.Multiply(v.Coordinates);
-    //        this.nw = transformMatrix.Multiply(v.Normal);
-    //        this.pbis = CameraMatrix.Multiply(pw);
-    //        pbis = Perspective.Multiply(pbis);
-    //    }
-    //    public TemporaryVertexStructure() { }
-    }
-//}
+}

@@ -38,5 +38,30 @@ namespace SoftEngine
 
             return System.Drawing.Color.FromArgb(R,G,B);
         }
+
+        public static Vector3 ComputeVector(Vector3 ka, Vector3 kd, Vector3 ks, Vector3 CamPos, Vector4 ScenePoint, Vector4 SceneNormal, Vector3 Ia, List<Light> lights, int m)
+        {
+            float r = Ia.X * ka.X;
+            float g = Ia.Y * ka.Y;
+            float b = Ia.Z * ka.Z;
+
+            foreach (Light l in lights)
+            {
+                var v = l.ComputePhongIlumination(ka, kd, ks, CamPos, ScenePoint, SceneNormal, m);
+                r += v.X;
+                g += v.Y;
+                b += v.Z;
+            }
+
+            if (r > 1) r = 1;
+            if (g > 1) g = 1;
+            if (b > 1) b = 1;
+
+            if (r < 0) r = 0;
+            if (g < 0) g = 0;
+            if (b < 0) b = 0;
+
+            return new Vector3(r, g, b);
+        }
     }
 }

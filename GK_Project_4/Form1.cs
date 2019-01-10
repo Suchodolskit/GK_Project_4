@@ -32,8 +32,7 @@ namespace GK_Project_4
         void CompositionTarget_Rendering(object sender, object e)
         {
             device.Clear(255, 0, 0, 0);
-            t = t + 0.05;
-            //camera.Position = new Vector3((float)(Math.Cos(t)), camera.Position.Y, (float)(Math.Sin(t)));
+            t = t + 0.1;
             ((PointLight)lights[0]).Position = new Vector3((float)(2*Math.Cos(t)), ((PointLight)lights[0]).Position.Y, (float)(2*Math.Sin(t)));
 
 
@@ -63,12 +62,12 @@ namespace GK_Project_4
                 meshes[i] = m[i - 1];
             }
 
-            camera.Position = new Vector3(0, 5f, 0f);
+            camera.Position = new Vector3(0, 4f, 0f);
             camera.Target = new Vector3(0,0,0);
             camera.Up = new Vector3(0, 0, 1);
 
             lights = new List<Light>();
-            lights.Add(new PointLight(new Vector3(0,10,0),new Vector3(1,1,1)));
+            lights.Add(new PointLight(new Vector3(0,1,0),new Vector3(1,1,1)));
 
             Rendring = new Timer();
             Rendring.Tick += CompositionTarget_Rendering;

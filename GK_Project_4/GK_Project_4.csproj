@@ -60,6 +60,7 @@
     <Compile Include="Engine\PhongIllumination.cs" />
     <Compile Include="Engine\Polygon.cs" />
     <Compile Include="Engine\Scanline.cs" />
+    <Compile Include="Engine\Shading.cs" />
     <Compile Include="Engine\TransitionMatrices.cs" />
     <Compile Include="Engine\Vertex.cs" />
     <Compile Include="Form1.cs">

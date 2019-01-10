@@ -105,11 +105,11 @@ namespace SoftEngine
             Vector3 ks = new Vector3((float)c.R / 255, (float)c.G / 255, (float)c.B / 255);
 
 
-            Vector4 DrawingPoint = (Edges[0].vertex1.pw + Edges[1].vertex1.pw + Edges[2].vertex1.pw) / 3;
-            var NormalVector = (Edges[0].vertex1.nw + Edges[1].vertex1.nw + Edges[2].vertex1.nw) / 3;
+            //Vector4 DrawingPoint = (Edges[0].vertex1.pw + Edges[1].vertex1.pw + Edges[2].vertex1.pw) / 3;
+            //var NormalVector = (Edges[0].vertex1.nw + Edges[1].vertex1.nw + Edges[2].vertex1.nw) / 3;
 
 
-            System.Drawing.Color col = PhongIllumination.Compute(ka, ks, ks, camera.Position, DrawingPoint, NormalVector, new Vector3(0.0f, 0.0f, 0.0f), lights, 1);
+            //System.Drawing.Color col = PhongIllumination.Compute(ka, ks, ks, camera.Position, DrawingPoint, NormalVector, new Vector3(0.0f, 0.0f, 0.0f), lights, 1);
 
             int minY, maxY;
             var Array = BucketSort(out minY, out maxY);
@@ -136,6 +136,15 @@ namespace SoftEngine
 
                     Edge e1 = AET[j].edge;
                     Edge e2 = AET[j + 1].edge;
+                    
+                    var col11 = PhongIllumination.ComputeVector(ka, ks, ks, camera.Position, e1.vertex1.pw, e1.vertex1.nw, new Vector3(0.0f, 0.0f, 0.0f), lights, 1);
+                    var col12 = PhongIllumination.ComputeVector(ka, ks, ks, camera.Position, e1.vertex2.pw, e1.vertex2.nw, new Vector3(0.0f, 0.0f, 0.0f), lights, 1);
+                    var col21 = PhongIllumination.ComputeVector(ka, ks, ks, camera.Position, e2.vertex1.pw, e2.vertex1.nw, new Vector3(0.0f, 0.0f, 0.0f), lights, 1);
+                    var col22 = PhongIllumination.ComputeVector(ka, ks, ks, camera.Position, e2.vertex2.pw, e2.vertex2.nw, new Vector3(0.0f, 0.0f, 0.0f), lights, 1);
+
+                    Shading s = new Shading(e1, col11, col12, e2, col21, col22);
+                    
+
 
                     var gradient1 = e1.HigherPoint().Y != e1.LowerPoint().Y ? (i - e1.HigherPoint().Y) / (e1.LowerPoint().Y - e1.HigherPoint().Y) : 1;
                     var gradient2 = e2.HigherPoint().Y != e2.LowerPoint().Y ? (i - e2.HigherPoint().Y) / (e2.LowerPoint().Y - e2.HigherPoint().Y) : 1;
@@ -156,7 +165,8 @@ namespace SoftEngine
                         var z = Interpolate(z1, z2, gradient);
                         if (x >= 0)
                         {
-
+                            var tmp=s.ComputeColor(x, i);
+                            System.Drawing.Color col = System.Drawing.Color.FromArgb((int)(tmp.X * 255), (int)(tmp.Y * 255), (int)(tmp.Z * 255));
                             device.PutPixel(x, i,z, col);
                         }
                     }
