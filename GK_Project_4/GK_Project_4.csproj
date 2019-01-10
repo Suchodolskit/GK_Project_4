@@ -53,7 +53,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Engine\Camera.cs" />
-    <Compile Include="Engine\PointLight.cs" />
+    <Compile Include="Engine\Lights.cs" />
     <Compile Include="Engine\Device.cs" />
     <Compile Include="Engine\DirectBitmap.cs" />
     <Compile Include="Engine\Edge.cs" />

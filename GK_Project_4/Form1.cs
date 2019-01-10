@@ -26,7 +26,7 @@ namespace GK_Project_4
         Mesh[][]meshes;
         Camera camera = new Camera();
         Timer Rendring;
-        PointLight l = new PointLight(new Vector3(0,5,0),new Vector3(1,1,1));
+        List<Light> lights;
         double t = 0.0;
 
         void CompositionTarget_Rendering(object sender, object e)
@@ -34,10 +34,10 @@ namespace GK_Project_4
             device.Clear(255, 0, 0, 0);
             t = t + 0.05;
             //camera.Position = new Vector3((float)(Math.Cos(t)), camera.Position.Y, (float)(Math.Sin(t)));
-            l.Position = new Vector3((float)(2*Math.Cos(t)), l.Position.Y, (float)(2*Math.Sin(t)));
+            //l.Position = new Vector3((float)(2*Math.Cos(t)), l.Position.Y, (float)(2*Math.Sin(t)));
 
 
-            device.MyRender(camera, meshes, l);
+            device.MyRender(camera, meshes, lights);
             device.Present();
         }
 
@@ -67,6 +67,9 @@ namespace GK_Project_4
             camera.Position = new Vector3(0, 5f, 0f);
             camera.Target = new Vector3(0,0,0);
             camera.Up = new Vector3(0, 0, 1);
+
+            lights = new List<Light>();
+            lights.Add(new DirectionalLight(new Vector3(-10,-1,0),new Vector3(1,1,1)));
 
             Rendring = new Timer();
             Rendring.Tick += CompositionTarget_Rendering;

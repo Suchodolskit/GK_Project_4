@@ -9,14 +9,6 @@ using SharpDX;
 
 namespace SoftEngine
 {
-    public struct ScanLineData
-    {
-        public int currentY;
-        public float ndotla;
-        public float ndotlb;
-        public float ndotlc;
-        public float ndotld;
-    }
     public class Device
     {
         //bufor służący do rysowania
@@ -136,7 +128,7 @@ namespace SoftEngine
                 WorldCoordinates =point3dWorld
             };
         }
-        public void MyRender(Camera camera, Mesh[][] meshes, PointLight light)
+        public void MyRender(Camera camera, Mesh[][] meshes, List<Light> lights)
         {
             var viewMatrix = TransitionMatrices.LookAt(camera);
             viewMatrix = Matrix.LookAtRH(camera.Position, camera.Target, camera.Up);
@@ -178,7 +170,7 @@ namespace SoftEngine
                              l2.Add(tmp);
                              var lis = tmp.PrepareEdgesToScanLineAlgorithm(renderWidth, renderHeight);
                              Scanline s = new Scanline(this, lis,camera);
-                             s.Fill(tmp.color,light);
+                             s.Fill(tmp.color,lights);
                          }
                      }
                  }//);

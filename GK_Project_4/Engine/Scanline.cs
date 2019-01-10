@@ -89,48 +89,6 @@ namespace SoftEngine
                     }
                     e.vertex2.pprim.Y = tab.Length - 1;
                 }
-
-                //if (e.vertex1.Y < 0)
-                //{
-                //    if (e.vertex2.X - e.vertex1.X != 0)
-                //    {
-                //        double a = (e.vertex2.Y - e.vertex1.Y) / (e.vertex2.X - e.vertex1.X);
-                //        double b = e.vertex1.Y - (a * e.vertex1.X);
-                //        e.vertex1.X = (float)(-b / a);
-                //    }
-                //    e.vertex1.Y = 0;
-                //}
-                //if (e.vertex2.Y < 0)
-                //{
-                //    if (e.vertex2.X - e.vertex1.X != 0)
-                //    {
-                //        double a = (e.vertex2.Y - e.vertex1.Y) / (e.vertex2.X - e.vertex1.X);
-                //        double b = e.vertex1.Y - (a * e.vertex1.X);
-                //        e.vertex2.X = (float)(-b / a);
-                //    }
-                //    e.vertex2.Y = 0;
-                //}
-                //if (e.vertex1.Y >= tab.Length)
-                //{
-                //    if (e.vertex2.X - e.vertex1.X != 0)
-                //    {
-                //        double a = (e.vertex2.Y - e.vertex1.Y) / (e.vertex2.X - e.vertex1.X);
-                //        double b = e.vertex1.Y - (a * e.vertex1.X);
-                //        e.vertex1.X = (float)((tab.Length - 1 - b) / a);
-                //    }
-                //    e.vertex1.Y = tab.Length - 1;
-                //}
-                //if (e.vertex2.Y >= tab.Length)
-                //{
-                //    if (e.vertex2.X - e.vertex1.X != 0)
-                //    {
-                //        double a = (e.vertex2.Y - e.vertex1.Y) / (e.vertex2.X - e.vertex1.X);
-                //        double b = e.vertex1.Y - (a * e.vertex1.X);
-                //        e.vertex2.X = (float)((tab.Length - 1 - b) / a);
-                //    }
-                //    e.vertex2.Y = tab.Length - 1;
-                //}
-
                 if (e.LowerPoint().Y < minY) minY = (int)e.LowerPoint().Y;
                 if (e.HigherPoint().Y > maxY) maxY = (int)e.HigherPoint().Y;
                 if (tab[(int)e.LowerPoint().Y] == null) { tab[(int)e.LowerPoint().Y] = new List<AETListElement>(); }
@@ -139,7 +97,7 @@ namespace SoftEngine
             }
             return tab;
         }
-        public void Fill(System.Drawing.Color c, PointLight light)
+        public void Fill(System.Drawing.Color c, List<Light> lights)
         {
 
             Vector3 ka = new Vector3((float)c.R / 255, (float)c.G / 255, (float)c.B / 255);
@@ -151,11 +109,7 @@ namespace SoftEngine
             var NormalVector = (Edges[0].vertex1.nw + Edges[1].vertex1.nw + Edges[2].vertex1.nw) / 3;
 
 
-            System.Drawing.Color col = PhongIllumination.Compute(ka, ks, ks, camera.Position, DrawingPoint, NormalVector, new Vector3(0.0f, 0.0f, 0.0f), light, 10);
-
-
-
-
+            System.Drawing.Color col = PhongIllumination.Compute(ka, ks, ks, camera.Position, DrawingPoint, NormalVector, new Vector3(0.0f, 0.0f, 0.0f), lights, 1);
 
             int minY, maxY;
             var Array = BucketSort(out minY, out maxY);
