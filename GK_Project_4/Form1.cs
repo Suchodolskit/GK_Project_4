@@ -26,16 +26,19 @@ namespace GK_Project_4
         Mesh[][]meshes;
         Camera camera = new Camera();
         Timer Rendring;
+        PointLight l = new PointLight(new Vector3(0,5,0),new Vector3(1,1,1));
         double t = 0.0;
 
         void CompositionTarget_Rendering(object sender, object e)
         {
             device.Clear(255, 0, 0, 0);
-            t = t + 0.01;
-            camera.Up = new Vector3((float)(Math.Cos(t)), camera.Position.Y, (float)(Math.Sin(t)));
+            t = t + 0.05;
+            //camera.Position = new Vector3((float)(Math.Cos(t)), camera.Position.Y, (float)(Math.Sin(t)));
+            l.Position = new Vector3((float)(2*Math.Cos(t)), l.Position.Y, (float)(2*Math.Sin(t)));
 
-            device.MyRender(camera, meshes);
 
+            device.MyRender(camera, meshes, l);
+            device.Present();
         }
 
         private async void Form1_Load(object sender, EventArgs e)
@@ -46,21 +49,24 @@ namespace GK_Project_4
 
             meshes = new Mesh[16][];
 
-            meshes[0] = await device.LoadJSONFileAsync(@"Meshes/Plate.babylon",false,System.Drawing.Color.DarkGreen,10);
+            meshes[0] = await device.LoadJSONFileAsync(@"Meshes/Plate.babylon",false,System.Drawing.Color.Green,3);
             meshes[0][0].Position = new Vector3(0, 0, 0);
+            meshes[0][0].Rotation = new Vector3(0,(float)Math.PI, 0);
 
-            meshes[1] = await device.LoadJSONFileAsync(@"Meshes/Ball.babylon", true, System.Drawing.Color.DarkGreen, 0.5f);
+            meshes[1] = await device.LoadJSONFileAsync(@"Meshes/Ball.babylon", false, System.Drawing.Color.Red, 0.2f);
             meshes[1][0].Position = new Vector3(0, 0, 0);
 
-            var m = MakeBillardTriangle(meshes[1][0], new Vector3(0.0f,0.5f,-10.0f), 0.5f);
+        
+
+            var m = MakeBillardTriangle(meshes[1][0], new Vector3(0.0f,0.2f,0.0f), 0.2f);
             for (int i = 1; i <= m.Length; i++)
             {
                 meshes[i] = m[i - 1];
             }
 
-            camera.Position = new Vector3(0, 30, 0);
+            camera.Position = new Vector3(0, 5f, 0f);
             camera.Target = new Vector3(0,0,0);
-            camera.Up = new Vector3(0, 0, 0);
+            camera.Up = new Vector3(0, 0, 1);
 
             Rendring = new Timer();
             Rendring.Tick += CompositionTarget_Rendering;
@@ -72,6 +78,8 @@ namespace GK_Project_4
         private Mesh[][] MakeBillardTriangle(Mesh ball, Vector3 Position, float radius)
         {
             Mesh[][] Balls = new Mesh[15][];
+            Position.Z = -(float)2 * (float)Math.Sqrt(3) * radius;
+            Position.X = radius;
             for (int i = 0; i < Balls.Length; i++)
             {
                 Balls[i] = new Mesh[1];

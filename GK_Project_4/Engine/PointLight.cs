@@ -9,12 +9,12 @@ using SharpDX;
 
 namespace SoftEngine
 {
-    class PointLight
+    public class PointLight
     {
         public Vector3 Position;
-        public System.Drawing.Color color;
+        public Vector3 color;
 
-        public PointLight(Vector3 position, System.Drawing.Color color)
+        public PointLight(Vector3 position, Vector3 color)
         {
             Position = position;
             this.color = color;

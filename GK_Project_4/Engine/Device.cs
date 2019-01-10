@@ -26,7 +26,7 @@ namespace SoftEngine
         public DirectBitmap bmp;
 
         //buffor głębokości - z-buffor
-        private readonly float[] ZBuffer;
+        private readonly double[] ZBuffer;
 
         //długość i szerokość obszaru renderowania
         public readonly int renderWidth;
@@ -44,7 +44,7 @@ namespace SoftEngine
             //potrzeba * 4 bo jeden pixel reprezetowany jako ARGB na 4 bajtach 
             backBuffer = new byte[bmp.Width * bmp.Height * 4];
 
-            ZBuffer = new float[bmp.Width * bmp.Height];
+            ZBuffer = new double[bmp.Width * bmp.Height];
         }
 
         // Metoda czyści bufory na zadany kolor
@@ -94,9 +94,9 @@ namespace SoftEngine
             //wypełnienie bufforów
             ZBuffer[index] = z;
 
-            backBuffer[index4] = (byte)(color.R);
+            backBuffer[index4] = (byte)(color.B);
             backBuffer[index4 + 1] = (byte)(color.G);
-            backBuffer[index4 + 2] = (byte)(color.B);
+            backBuffer[index4 + 2] = (byte)(color.R);
             backBuffer[index4 + 3] = (byte)(color.A);
         }
 
@@ -136,25 +136,17 @@ namespace SoftEngine
                 WorldCoordinates =point3dWorld
             };
         }
-
-        // Rysuje punkty - wywołuje putpixel tylko wtedy gdy widzi, że pixel jest na ekranie
-        public void DrawPoint(Vector3 point, System.Drawing.Color color)
-        {
-            // sprawdza czy na ekranie
-            if (point.X >= 0 && point.Y >= 0 && point.X < bmp.Width && point.Y < bmp.Height)
-            {
-                // rysuje
-                PutPixel((int)point.X, (int)point.Y, point.Z, color);
-            }
-        }
-
-        public void MyRender(Camera camera, Mesh[][] meshes)
+        public void MyRender(Camera camera, Mesh[][] meshes, PointLight light)
         {
             var viewMatrix = TransitionMatrices.LookAt(camera);
-            var ProjectionMatrix= TransitionMatrices.Prespective(0.8f, (float)500/500, -0.1f, 0.1f);
+            viewMatrix = Matrix.LookAtRH(camera.Position, camera.Target, camera.Up);
+            viewMatrix.Transpose();
+            var ProjectionMatrix= TransitionMatrices.Prespective(0.8f, 1, 0.01f, 10.0f);
+            ProjectionMatrix = Matrix.PerspectiveFovRH(0.8f, 1, 0.01f, 10.0f);
+            ProjectionMatrix.Transpose();
 
-
-            Parallel.For(0, meshes.Length, fa =>
+            for(int fa=0;fa<meshes.Length; fa++)
+            //Parallel.For(0, meshes.Length, fa =>
                  {
                      List<Polygon> l = new List<Polygon>();
 
@@ -170,9 +162,9 @@ namespace SoftEngine
 
 
                          p.MakeTemporaryVertexStructureList(WorldMatrix, viewMatrix, ProjectionMatrix);
-                         p.ClipByCuttingPlanes();
+                         //p.ClipByCuttingPlanes();
                          p.Computepprim();
-                         p.ClipByWindowSize();
+                         //p.ClipByWindowSize();
                          l.Add(p);
                      }
 
@@ -185,12 +177,11 @@ namespace SoftEngine
                          {
                              l2.Add(tmp);
                              var lis = tmp.PrepareEdgesToScanLineAlgorithm(renderWidth, renderHeight);
-                             Scanline s = new Scanline(this, lis,camera,tmp.StructureList[0].nw);
-                             s.Fill(tmp.color);
+                             Scanline s = new Scanline(this, lis,camera);
+                             s.Fill(tmp.color,light);
                          }
                      }
-                 });
-            Present();
+                 }//);
         }
 
         //wczytanie pliku JSONowego ze strkturą
