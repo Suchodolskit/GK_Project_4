@@ -10,9 +10,13 @@ namespace SoftEngine
     class Polygon
     {
         List<Vertex> Vertices;
-        public List<TemporaryVertexStructure> StructureList;
+
+        //public List<TemporaryVertexStructure> StructureList;
+
         public bool NotDrawedPolygon=false;
+
         public System.Drawing.Color color;
+
         public Polygon(System.Drawing.Color c,params Vertex[] tab)
         {
             color = c;
@@ -24,23 +28,42 @@ namespace SoftEngine
         }
         public void MakeTemporaryVertexStructureList(Matrix transformMatrix, Matrix cameraMatrix, Matrix PerspectiveMatrix)
         {
-            StructureList = new List<TemporaryVertexStructure>();
+            //StructureList = new List<TemporaryVertexStructure>();
+            //for (int i = 0; i < Vertices.Count; i++)
+            //{
+            //    StructureList.Add(new TemporaryVertexStructure(Vertices[i], transformMatrix, cameraMatrix, PerspectiveMatrix));
+            //}
             for (int i = 0; i < Vertices.Count; i++)
             {
-                StructureList.Add(new TemporaryVertexStructure(Vertices[i], transformMatrix, cameraMatrix, PerspectiveMatrix));
+                var tmp = Vertices[i].Clone();
+                tmp.pw = transformMatrix.Multiply(tmp.Coordinates);
+                tmp.nw = transformMatrix.Multiply(tmp.Normal);
+                tmp.pbis = cameraMatrix.Multiply(tmp.pw);
+                tmp.pbis = PerspectiveMatrix.Multiply(tmp.pbis);
+                Vertices[i] = tmp;
             }
         }
 
         public void ClipByCuttingPlanes()
         {
-            for (int i = 0; i < StructureList.Count; i++)
+            //for (int i = 0; i < StructureList.Count; i++)
+            //{
+            //    if (StructureList[i].pbis.Z < 0 || StructureList[i].pbis.Z > StructureList[i].pbis.W)
+            //    {
+            //        NotDrawedPolygon = true;
+            //        return;
+            //    }
+            //}
+
+            for (int i = 0; i < Vertices.Count; i++)
             {
-                if (StructureList[i].pbis.Z < 0 || StructureList[i].pbis.Z > StructureList[i].pbis.W)
+                if (Vertices[i].pbis.Z < 0 || Vertices[i].pbis.Z > Vertices[i].pbis.W)
                 {
                     NotDrawedPolygon = true;
                     return;
                 }
             }
+
             //public void ClipByCuttingPlanes()
             //{
 
@@ -189,78 +212,105 @@ namespace SoftEngine
             //        }
             //    }
             //}
-
+            //private TemporaryVertexStructure ComputeNewPositionPlane1(TemporaryVertexStructure appropriate, TemporaryVertexStructure inappropriate)
+            //{
+            //    float t = appropriate.pbis.Z / (appropriate.pbis.Z - inappropriate.pbis.Z);
+            //    Vector4 pwt = Vector4.Add(Vector4.Multiply(appropriate.pw, (float)(1 - t)), Vector4.Multiply(inappropriate.pw, t));
+            //    Vector4 nwt = Vector4.Add(Vector4.Multiply(appropriate.nw, (float)(1 - t)), Vector4.Multiply(inappropriate.nw, t));
+            //    Vector4 pbist = Vector4.Add(Vector4.Multiply(appropriate.pbis, (float)(1 - t)), Vector4.Multiply(inappropriate.pbis, t));
+            //    TemporaryVertexStructure tmp1 = new TemporaryVertexStructure();
+            //    tmp1.nw = nwt;
+            //    tmp1.pbis = pbist;
+            //    tmp1.pw = pwt;
+            //    return tmp1;
+            //}
+            //private TemporaryVertexStructure ComputeNewPositionPlane2(TemporaryVertexStructure inappropriate, TemporaryVertexStructure appropriate)
+            //{
+            //    float t = (inappropriate.pbis.Z - inappropriate.pbis.W) / (inappropriate.pbis.Z - inappropriate.pbis.W + appropriate.pbis.Z - appropriate.pbis.W); 
+            //    Vector4 pwt = Vector4.Add(Vector4.Multiply(inappropriate.pw, (float)(1 - t)), Vector4.Multiply(appropriate.pw, t));
+            //    Vector4 nwt = Vector4.Add(Vector4.Multiply(inappropriate.nw, (float)(1 - t)), Vector4.Multiply(appropriate.nw, t));
+            //    Vector4 pbist = Vector4.Add(Vector4.Multiply(inappropriate.pbis, (float)(1 - t)), Vector4.Multiply(appropriate.pbis, t));
+            //    TemporaryVertexStructure tmp1 = new TemporaryVertexStructure();
+            //    tmp1.nw = nwt;
+            //    tmp1.pbis = pbist;
+            //    tmp1.pw = pwt;
+            //    return tmp1;
+            //}
         }
 
-        private TemporaryVertexStructure ComputeNewPositionPlane1(TemporaryVertexStructure appropriate, TemporaryVertexStructure inappropriate)
-        {
-            float t = appropriate.pbis.Z / (appropriate.pbis.Z - inappropriate.pbis.Z);
-            Vector4 pwt = Vector4.Add(Vector4.Multiply(appropriate.pw, (float)(1 - t)), Vector4.Multiply(inappropriate.pw, t));
-            Vector4 nwt = Vector4.Add(Vector4.Multiply(appropriate.nw, (float)(1 - t)), Vector4.Multiply(inappropriate.nw, t));
-            Vector4 pbist = Vector4.Add(Vector4.Multiply(appropriate.pbis, (float)(1 - t)), Vector4.Multiply(inappropriate.pbis, t));
-            TemporaryVertexStructure tmp1 = new TemporaryVertexStructure();
-            tmp1.nw = nwt;
-            tmp1.pbis = pbist;
-            tmp1.pw = pwt;
-            return tmp1;
-        }
-        private TemporaryVertexStructure ComputeNewPositionPlane2(TemporaryVertexStructure inappropriate, TemporaryVertexStructure appropriate)
-        {
-            float t = (inappropriate.pbis.Z - inappropriate.pbis.W) / (inappropriate.pbis.Z - inappropriate.pbis.W + appropriate.pbis.Z - appropriate.pbis.W); 
-            Vector4 pwt = Vector4.Add(Vector4.Multiply(inappropriate.pw, (float)(1 - t)), Vector4.Multiply(appropriate.pw, t));
-            Vector4 nwt = Vector4.Add(Vector4.Multiply(inappropriate.nw, (float)(1 - t)), Vector4.Multiply(appropriate.nw, t));
-            Vector4 pbist = Vector4.Add(Vector4.Multiply(inappropriate.pbis, (float)(1 - t)), Vector4.Multiply(appropriate.pbis, t));
-            TemporaryVertexStructure tmp1 = new TemporaryVertexStructure();
-            tmp1.nw = nwt;
-            tmp1.pbis = pbist;
-            tmp1.pw = pwt;
-            return tmp1;
-        }
+
 
         public void Computepprim()
         {
-            for (int i = 0; i < StructureList.Count; i++)
-            {
-                StructureList[i].pprim = Vector4.Divide(StructureList[i].pbis, StructureList[i].pbis.W);
-            }
-        }
-        public void ClipByWindowSize()
-        {
-            int tmp = 0;
-            float middlex = 0.0f;
-            float middley = 0.0f;
-            for (int i = 0; i < StructureList.Count; i++)
-            {
-                middlex += StructureList[i].pprim.X;
-                middley += StructureList[i].pprim.Y;
+            //for (int i = 0; i < StructureList.Count; i++)
+            //{
+            //    StructureList[i].pprim = Vector4.Divide(StructureList[i].pbis, StructureList[i].pbis.W);
+            //}
 
-                if (Math.Abs(StructureList[i].pprim.X) > 1 || Math.Abs(StructureList[i].pprim.Y) > 1)
-                {
-                    tmp++;
-                }
+            for (int i = 0; i < Vertices.Count; i++)
+            {
+                Vertex tmp = Vertices[i].Clone();
+                tmp.pprim = Vector4.Divide(Vertices[i].pbis, Vertices[i].pbis.W);
+                Vertices[i] = tmp;
             }
-            middlex /= StructureList.Count;
-            middley /= StructureList.Count;
-            if (tmp == StructureList.Count && Math.Abs(middlex) > 1 && Math.Abs(middley) > 1) NotDrawedPolygon = true;
         }
+        //public void ClipByWindowSize()
+        //{
+        //    int tmp = 0;
+        //    float middlex = 0.0f;
+        //    float middley = 0.0f;
+        //    for (int i = 0; i < StructureList.Count; i++)
+        //    {
+        //        middlex += StructureList[i].pprim.X;
+        //        middley += StructureList[i].pprim.Y;
+
+        //        if (Math.Abs(StructureList[i].pprim.X) > 1 || Math.Abs(StructureList[i].pprim.Y) > 1)
+        //        {
+        //            tmp++;
+        //        }
+        //    }
+        //    middlex /= StructureList.Count;
+        //    middley /= StructureList.Count;
+        //    if (tmp == StructureList.Count && Math.Abs(middlex) > 1 && Math.Abs(middley) > 1) NotDrawedPolygon = true;
+        //}
         public List<Edge> PrepareEdgesToScanLineAlgorithm(int width, int height)
         {
             if (NotDrawedPolygon) return null;
             List<Edge> Scanlinelist = new List<Edge>();
-            for (int i = 0; i < StructureList.Count; i++)
-            {
-                int j = (i + 1) % StructureList.Count;
-                TemporaryVertexStructure t1 = new TemporaryVertexStructure();
-                t1.nw = StructureList[i].nw;
-                t1.pw = StructureList[i].pw;
-                t1.pbis = StructureList[i].pbis;
-                t1.pprim = TransformToBitmapCoordinates(StructureList[i].pprim, width, height);
+            //for (int i = 0; i < StructureList.Count; i++)
+            //{
+            //    int j = (i + 1) % StructureList.Count;
+            //    TemporaryVertexStructure t1 = new TemporaryVertexStructure();
+            //    t1.nw = StructureList[i].nw;
+            //    t1.pw = StructureList[i].pw;
+            //    t1.pbis = StructureList[i].pbis;
+            //    t1.pprim = TransformToBitmapCoordinates(StructureList[i].pprim, width, height);
 
-                TemporaryVertexStructure t2 = new TemporaryVertexStructure();
-                t2.nw = StructureList[j].nw;
-                t2.pw = StructureList[j].pw;
-                t2.pbis = StructureList[j].pbis;
-                t2.pprim = TransformToBitmapCoordinates(StructureList[j].pprim, width, height);
+            //    TemporaryVertexStructure t2 = new TemporaryVertexStructure();
+            //    t2.nw = StructureList[j].nw;
+            //    t2.pw = StructureList[j].pw;
+            //    t2.pbis = StructureList[j].pbis;
+            //    t2.pprim = TransformToBitmapCoordinates(StructureList[j].pprim, width, height);
+
+            //    Edge e = new Edge(t1, t2);
+            //    Scanlinelist.Add(e);
+
+            //}
+
+            for (int i = 0; i < Vertices.Count; i++)
+            {
+                int j = (i + 1) % Vertices.Count;
+                Vertex t1 = new Vertex();
+                t1.nw = Vertices[i].nw;
+                t1.pw = Vertices[i].pw;
+                t1.pbis = Vertices[i].pbis;
+                t1.pprim = TransformToBitmapCoordinates(Vertices[i].pprim, width, height);
+
+                Vertex t2 = new Vertex();
+                t2.nw = Vertices[j].nw;
+                t2.pw = Vertices[j].pw;
+                t2.pbis = Vertices[j].pbis;
+                t2.pprim = TransformToBitmapCoordinates(Vertices[j].pprim, width, height);
 
                 Edge e = new Edge(t1, t2);
                 Scanlinelist.Add(e);
@@ -281,20 +331,20 @@ namespace SoftEngine
         }
 
     }
-    public class TemporaryVertexStructure
-    {
-        public Vector4 pw;
-        public Vector4 nw;
-        public Vector4 pprim;
-        public Vector4 pbis;
+    //public class TemporaryVertexStructure
+    //{
+    //    public Vector4 pw;
+    //    public Vector4 nw;
+    //    public Vector4 pprim;
+    //    public Vector4 pbis;
 
-        public TemporaryVertexStructure(Vertex v, Matrix transformMatrix, Matrix CameraMatrix, Matrix Perspective)
-        {
-            this.pw = transformMatrix.Multiply(v.Coordinates);
-            this.nw = transformMatrix.Multiply(v.Normal);
-            this.pbis = CameraMatrix.Multiply(pw);
-            pbis = Perspective.Multiply(pbis);
-        }
-        public TemporaryVertexStructure() { }
+    //    public TemporaryVertexStructure(Vertex v, Matrix transformMatrix, Matrix CameraMatrix, Matrix Perspective)
+    //    {
+    //        this.pw = transformMatrix.Multiply(v.Coordinates);
+    //        this.nw = transformMatrix.Multiply(v.Normal);
+    //        this.pbis = CameraMatrix.Multiply(pw);
+    //        pbis = Perspective.Multiply(pbis);
+    //    }
+    //    public TemporaryVertexStructure() { }
     }
-}
+//}

@@ -10,14 +10,24 @@ namespace SoftEngine
     public class Edge
     {
 
-        public TemporaryVertexStructure vertex1;
-        public TemporaryVertexStructure vertex2;
+        //public TemporaryVertexStructure vertex1;
+        //public TemporaryVertexStructure vertex2;
 
-        public Edge(TemporaryVertexStructure vertex1, TemporaryVertexStructure vertex2)
+        //public Edge(TemporaryVertexStructure vertex1, TemporaryVertexStructure vertex2)
+        //{
+        //    this.vertex1 = vertex1;
+        //    this.vertex2 = vertex2;
+        //}
+
+        public Vertex vertex1;
+        public Vertex vertex2;
+
+        public Edge(Vertex vertex1, Vertex vertex2)
         {
             this.vertex1 = vertex1;
             this.vertex2 = vertex2;
         }
+
 
         public Vector4 LowerPoint()
         {
