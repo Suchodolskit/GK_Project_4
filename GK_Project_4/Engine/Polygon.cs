@@ -41,155 +41,156 @@ namespace SoftEngine
                     return;
                 }
             }
+            //public void ClipByCuttingPlanes()
+            //{
+
+            //    //bliższa płaszczyzna
+
+            //    List<bool> CuttedVertextab = new List<bool>() ;
+            //    int CuttedVertexCounter = 0;
+            //    for (int i = 0; i < StructureList.Count; i++)
+            //    {
+            //        if (StructureList[i].pbis.Z < 0) { CuttedVertextab.Add(true); CuttedVertexCounter++; }
+            //        else CuttedVertextab.Add(false);
+            //    }
+            //    //nie ma wielokąta do narysowania
+            //    if (StructureList.Count - CuttedVertexCounter < 1)
+            //    {
+            //        NotDrawedPolygon = true;
+            //        return;
+            //    }
+            //    if (CuttedVertexCounter == 1)
+            //    {
+            //        for (int i = 0; i < StructureList.Count; i++)
+            //        {
+            //            //obcinamy pojedyńczy wierzchołek - powstaje nowa krawędź
+            //            if (CuttedVertextab[i])
+            //            {
+            //                int j = i - 1 < 0 ? StructureList.Count - 1 : i - 1;
+            //                int k = (i + 1) % StructureList.Count;
+            //                TemporaryVertexStructure tmp1 = ComputeNewPositionPlane1(StructureList[j], StructureList[i]);
+            //                TemporaryVertexStructure tmp2 = ComputeNewPositionPlane1(StructureList[k], StructureList[i]);
+            //                StructureList[i] = tmp1;
+            //                StructureList.Insert(i + 1, tmp2);
+            //                break;
+            //            }
+            //        }
+            //    }
+            //    else if (CuttedVertexCounter>0)
+            //    {
+            //        var l = new List<Vertex>();
+            //        var ls = new List<TemporaryVertexStructure>();
+
+            //        int i = 0;
+            //        while (i < StructureList.Count)
+            //        {
+            //            int j = i - 1 < 0 ? StructureList.Count - 1 : i - 1;
+            //            int k = (i + 1) % StructureList.Count;
+            //            //można usunąć i-ty wierzchołek;
+            //            if (CuttedVertextab[i] && CuttedVertextab[j] && CuttedVertextab[k])
+            //            {
+            //                Vertices.RemoveAt(i);
+            //                StructureList.RemoveAt(i);
+            //                CuttedVertextab.RemoveAt(i);
+            //            }
+            //            else i++;
+            //        }
+            //        i = 0;
+            //        int c = 0;
+            //        while (c < 2)
+            //        {
+            //            int j = i - 1 < 0 ? StructureList.Count - 1 : i - 1;
+            //            int k = (i + 1) % StructureList.Count;
+            //            //zmieniamy i-ty
+            //            if (CuttedVertextab[i] && !CuttedVertextab[j])
+            //            {
+            //                StructureList[i] = ComputeNewPositionPlane1(StructureList[j], StructureList[i]);
+            //                c++;
+            //            }
+            //            if (CuttedVertextab[i] && !CuttedVertextab[k])
+            //            {
+            //                StructureList[i] = ComputeNewPositionPlane1(StructureList[k], StructureList[i]);
+            //                c++;
+            //            }
+            //            i = (i + 1) % StructureList.Count;
+            //        }
+            //    }
+
+
+            //dalsza płaszczyzna 
+
+            //CuttedVertextab = new List<bool>();
+            //    CuttedVertexCounter = 0;
+            //    for (int i = 0; i < StructureList.Count; i++)
+            //    {
+            //        if (StructureList[i].pbis.Z > StructureList[i].pbis.W) { CuttedVertextab.Add(true); CuttedVertexCounter++; }
+            //        else CuttedVertextab.Add(false);
+            //    }
+            //    //nie ma wielokąta do narysowania
+            //    if (StructureList.Count - CuttedVertexCounter < 1)
+            //    {
+            //        NotDrawedPolygon = true;
+            //        return;
+            //    }
+            //    if (CuttedVertexCounter == 1)
+            //    {
+            //        for (int i = 0; i < StructureList.Count; i++)
+            //        {
+            //            //obcinamy pojedyńczy wierzchołek - powstaje nowa krawędź
+            //            if (CuttedVertextab[i])
+            //            {
+            //                int j = i - 1 < 0 ? StructureList.Count - 1 : i - 1;
+            //                int k = (i + 1) % StructureList.Count;
+            //                TemporaryVertexStructure tmp1 = ComputeNewPositionPlane2(StructureList[i], StructureList[j]);
+            //                TemporaryVertexStructure tmp2 = ComputeNewPositionPlane2(StructureList[i], StructureList[k]);
+            //                StructureList[i] = tmp1;
+            //                StructureList.Insert(i + 1, tmp2);
+            //                break;
+            //            }
+            //        }
+            //    }
+            //    else if (CuttedVertexCounter > 0)
+            //    {
+            //        var l = new List<Vertex>();
+            //        var ls = new List<TemporaryVertexStructure>();
+
+            //        int i = 0;
+            //        while (i < StructureList.Count)
+            //        {
+            //            int j = i - 1 < 0 ? StructureList.Count - 1 : i - 1;
+            //            int k = (i + 1) % StructureList.Count;
+            //            //można usunąć i-ty wierzchołek;
+            //            if (CuttedVertextab[i] && CuttedVertextab[j] && CuttedVertextab[k])
+            //            {
+            //                Vertices.RemoveAt(i);
+            //                StructureList.RemoveAt(i);
+            //                CuttedVertextab.RemoveAt(i);
+            //            }
+            //            else i++;
+            //        }
+            //        i = 0;
+            //        int c = 0;
+            //        while (c < 2)
+            //        {
+            //            int j = i - 1 < 0 ? StructureList.Count - 1 : i - 1;
+            //            int k = (i + 1) % StructureList.Count;
+            //            //zmieniamy i-ty
+            //            if (CuttedVertextab[i] && !CuttedVertextab[j])
+            //            {
+            //                StructureList[i] = ComputeNewPositionPlane2(StructureList[i], StructureList[j]);
+            //                c++;
+            //            }
+            //            if (CuttedVertextab[i] && !CuttedVertextab[k])
+            //            {
+            //                StructureList[i] = ComputeNewPositionPlane2(StructureList[i], StructureList[k]);
+            //                c++;
+            //            }
+            //            i = (i + 1) % StructureList.Count;
+            //        }
+            //    }
+            //}
+
         }
-        //public void ClipByCuttingPlanes()
-        //{
-
-        //    //bliższa płaszczyzna
-
-        //    List<bool> CuttedVertextab = new List<bool>() ;
-        //    int CuttedVertexCounter = 0;
-        //    for (int i = 0; i < StructureList.Count; i++)
-        //    {
-        //        if (StructureList[i].pbis.Z < 0) { CuttedVertextab.Add(true); CuttedVertexCounter++; }
-        //        else CuttedVertextab.Add(false);
-        //    }
-        //    //nie ma wielokąta do narysowania
-        //    if (StructureList.Count - CuttedVertexCounter < 1)
-        //    {
-        //        NotDrawedPolygon = true;
-        //        return;
-        //    }
-        //    if (CuttedVertexCounter == 1)
-        //    {
-        //        for (int i = 0; i < StructureList.Count; i++)
-        //        {
-        //            //obcinamy pojedyńczy wierzchołek - powstaje nowa krawędź
-        //            if (CuttedVertextab[i])
-        //            {
-        //                int j = i - 1 < 0 ? StructureList.Count - 1 : i - 1;
-        //                int k = (i + 1) % StructureList.Count;
-        //                TemporaryVertexStructure tmp1 = ComputeNewPositionPlane1(StructureList[j], StructureList[i]);
-        //                TemporaryVertexStructure tmp2 = ComputeNewPositionPlane1(StructureList[k], StructureList[i]);
-        //                StructureList[i] = tmp1;
-        //                StructureList.Insert(i + 1, tmp2);
-        //                break;
-        //            }
-        //        }
-        //    }
-        //    else if (CuttedVertexCounter>0)
-        //    {
-        //        var l = new List<Vertex>();
-        //        var ls = new List<TemporaryVertexStructure>();
-
-        //        int i = 0;
-        //        while (i < StructureList.Count)
-        //        {
-        //            int j = i - 1 < 0 ? StructureList.Count - 1 : i - 1;
-        //            int k = (i + 1) % StructureList.Count;
-        //            //można usunąć i-ty wierzchołek;
-        //            if (CuttedVertextab[i] && CuttedVertextab[j] && CuttedVertextab[k])
-        //            {
-        //                Vertices.RemoveAt(i);
-        //                StructureList.RemoveAt(i);
-        //                CuttedVertextab.RemoveAt(i);
-        //            }
-        //            else i++;
-        //        }
-        //        i = 0;
-        //        int c = 0;
-        //        while (c < 2)
-        //        {
-        //            int j = i - 1 < 0 ? StructureList.Count - 1 : i - 1;
-        //            int k = (i + 1) % StructureList.Count;
-        //            //zmieniamy i-ty
-        //            if (CuttedVertextab[i] && !CuttedVertextab[j])
-        //            {
-        //                StructureList[i] = ComputeNewPositionPlane1(StructureList[j], StructureList[i]);
-        //                c++;
-        //            }
-        //            if (CuttedVertextab[i] && !CuttedVertextab[k])
-        //            {
-        //                StructureList[i] = ComputeNewPositionPlane1(StructureList[k], StructureList[i]);
-        //                c++;
-        //            }
-        //            i = (i + 1) % StructureList.Count;
-        //        }
-        //    }
-
-
-        //dalsza płaszczyzna 
-
-        //CuttedVertextab = new List<bool>();
-        //    CuttedVertexCounter = 0;
-        //    for (int i = 0; i < StructureList.Count; i++)
-        //    {
-        //        if (StructureList[i].pbis.Z > StructureList[i].pbis.W) { CuttedVertextab.Add(true); CuttedVertexCounter++; }
-        //        else CuttedVertextab.Add(false);
-        //    }
-        //    //nie ma wielokąta do narysowania
-        //    if (StructureList.Count - CuttedVertexCounter < 1)
-        //    {
-        //        NotDrawedPolygon = true;
-        //        return;
-        //    }
-        //    if (CuttedVertexCounter == 1)
-        //    {
-        //        for (int i = 0; i < StructureList.Count; i++)
-        //        {
-        //            //obcinamy pojedyńczy wierzchołek - powstaje nowa krawędź
-        //            if (CuttedVertextab[i])
-        //            {
-        //                int j = i - 1 < 0 ? StructureList.Count - 1 : i - 1;
-        //                int k = (i + 1) % StructureList.Count;
-        //                TemporaryVertexStructure tmp1 = ComputeNewPositionPlane2(StructureList[i], StructureList[j]);
-        //                TemporaryVertexStructure tmp2 = ComputeNewPositionPlane2(StructureList[i], StructureList[k]);
-        //                StructureList[i] = tmp1;
-        //                StructureList.Insert(i + 1, tmp2);
-        //                break;
-        //            }
-        //        }
-        //    }
-        //    else if (CuttedVertexCounter > 0)
-        //    {
-        //        var l = new List<Vertex>();
-        //        var ls = new List<TemporaryVertexStructure>();
-
-        //        int i = 0;
-        //        while (i < StructureList.Count)
-        //        {
-        //            int j = i - 1 < 0 ? StructureList.Count - 1 : i - 1;
-        //            int k = (i + 1) % StructureList.Count;
-        //            //można usunąć i-ty wierzchołek;
-        //            if (CuttedVertextab[i] && CuttedVertextab[j] && CuttedVertextab[k])
-        //            {
-        //                Vertices.RemoveAt(i);
-        //                StructureList.RemoveAt(i);
-        //                CuttedVertextab.RemoveAt(i);
-        //            }
-        //            else i++;
-        //        }
-        //        i = 0;
-        //        int c = 0;
-        //        while (c < 2)
-        //        {
-        //            int j = i - 1 < 0 ? StructureList.Count - 1 : i - 1;
-        //            int k = (i + 1) % StructureList.Count;
-        //            //zmieniamy i-ty
-        //            if (CuttedVertextab[i] && !CuttedVertextab[j])
-        //            {
-        //                StructureList[i] = ComputeNewPositionPlane2(StructureList[i], StructureList[j]);
-        //                c++;
-        //            }
-        //            if (CuttedVertextab[i] && !CuttedVertextab[k])
-        //            {
-        //                StructureList[i] = ComputeNewPositionPlane2(StructureList[i], StructureList[k]);
-        //                c++;
-        //            }
-        //            i = (i + 1) % StructureList.Count;
-        //        }
-        //    }
-        //}
 
         private TemporaryVertexStructure ComputeNewPositionPlane1(TemporaryVertexStructure appropriate, TemporaryVertexStructure inappropriate)
         {
@@ -295,16 +296,5 @@ namespace SoftEngine
             pbis = Perspective.Multiply(pbis);
         }
         public TemporaryVertexStructure() { }
-    }
-    public class TemporaryVertexStructureFactory
-    {
-        public Matrix TransformMatrix;
-        public Matrix CameraPerspectiveMatrix;
-
-        public TemporaryVertexStructureFactory(Matrix transformMatrix, Matrix cameraPerspectiveMatrix)
-        {
-            TransformMatrix = transformMatrix;
-            CameraPerspectiveMatrix = cameraPerspectiveMatrix;
-        }
     }
 }

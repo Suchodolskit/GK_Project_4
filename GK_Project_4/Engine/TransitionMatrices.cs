@@ -121,12 +121,12 @@ namespace SoftEngine
             m.M44 = 1;
             return m;
         }
-        //n-bliższa płaszczyzna ograniczająca z-towa składowa
-        //f-dalsza płaszczyzna ograniczająca z-towa składowa
-        //a-stosunek wysokości do szerokości ekranu
-        //fov(field of view) - kąt widzenia 
         public static Matrix Prespective(float fov, float a, float n, float f)
         {
+            //n-bliższa płaszczyzna ograniczająca z-towa składowa
+            //f-dalsza płaszczyzna ograniczająca z-towa składowa
+            //a-stosunek wysokości do szerokości ekranu
+            //fov(field of view) - kąt widzenia
             Matrix m = Matrix.Zero;
             m.M11 = (float)(1.0f / Math.Tan(fov * 0.5f));
             m.M22 = (float)(m.M11 / a);
@@ -135,26 +135,24 @@ namespace SoftEngine
             m.M43 = -1;
             return m;
         }
-
-        //Macierz przekształcenia współrzędnych gdzie argumenty to wektory układu źródłowego wyrażone we współrzędnych układu docelowego
         public static Matrix TranslationCoordinationSrc(Vector3 x, Vector3 y, Vector3 z, Vector3 Zero)
         {
+            //Macierz przekształcenia współrzędnych gdzie argumenty to wektory układu źródłowego wyrażone we współrzędnych układu docelowego
             Matrix m = Matrix.Identity;
             m.Row1 = new Vector4(x.X, y.X, z.X, Zero.X);
             m.Row2 = new Vector4(x.Y, y.Y, z.Y, Zero.Y);
             m.Row3 = new Vector4(x.Z, y.Z, z.Z, Zero.Z);
             return m;
         }
-        //Macierz przekształcenia współrzędnych gdzie argumenty to wektory układu docelowego wyrażone we współrzędnych układu źródłowego
         public static Matrix TranslationCoordinationDst(Vector3 x, Vector3 y, Vector3 z, Vector3 Zero)
         {
+            //Macierz przekształcenia współrzędnych gdzie argumenty to wektory układu docelowego wyrażone we współrzędnych układu źródłowego
             Matrix m = Matrix.Identity;
             m.Row1 = new Vector4(x.X, x.Y, x.Z, Vector3.Dot(x, Zero));
             m.Row2 = new Vector4(y.X, y.Y, y.Z, Vector3.Dot(y, Zero));
             m.Row3 = new Vector4(z.X, z.Y, z.Z, Vector3.Dot(z, Zero));
             return m;
         }
-
         public static Vector4 TransformCoordinateWithMatrix(Vector4 coordinate, Matrix transform)
         {
             var vec=transform.Multiply(coordinate);

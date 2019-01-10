@@ -143,14 +143,12 @@ namespace SoftEngine
                     int sx = (int)Interpolate(e1.HigherPoint().X, e1.LowerPoint().X, gradient1);
                     int ex = (int)Interpolate(e2.HigherPoint().X, e2.LowerPoint().X, gradient2);
 
-                    // starting Z & ending Z
                     float z1 = Interpolate(e1.HigherPoint().Z, e1.LowerPoint().Z, gradient1);
                     float z2 = Interpolate(e2.HigherPoint().Z, e2.LowerPoint().Z, gradient2);
 
                     sx = sx < 0 ? 0 : sx;
                     ex = ex > device.renderWidth ? device.renderWidth : ex;
 
-                    // drawing a line from left (sx) to right (ex) 
                     for (var x = sx; x < ex; x++)
                     {
                         float gradient = (x - sx) / (float)(ex - sx);

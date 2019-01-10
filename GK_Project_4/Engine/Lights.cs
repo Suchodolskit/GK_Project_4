@@ -36,7 +36,6 @@ namespace SoftEngine
             return new Vector3(r, g, b);
         }
     }
-
     public class DirectionalLight : Light
     {
         public Vector3 Direction;
@@ -64,7 +63,6 @@ namespace SoftEngine
             return new Vector3(r, g, b);
         }
     }
-
     public class SpotLight: Light
     {
         public Vector3 Position;

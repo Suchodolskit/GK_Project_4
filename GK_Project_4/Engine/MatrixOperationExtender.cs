@@ -18,7 +18,6 @@ namespace SoftEngine
             }
             return output;
         }
-
         public static Vector4 ConvertToPoint(this Vector3 v)
         {
             return new Vector4(v, 1);
@@ -27,7 +26,6 @@ namespace SoftEngine
         {
             return new Vector4(v, 0);
         }
-
         public static Vector3 ConvertFromPointOrVector(this Vector4 v)
         {
             return new Vector3(v[0],v[1],v[2]);

@@ -11,16 +11,12 @@ namespace SoftEngine
 {
     public class Device
     {
-        //bufor służący do rysowania
         private byte[] backBuffer;
 
-        //bitmapa do rysowania
         public DirectBitmap bmp;
 
-        //buffor głębokości - z-buffor
         private readonly double[] ZBuffer;
 
-        //długość i szerokość obszaru renderowania
         public readonly int renderWidth;
         public readonly int renderHeight;
 
@@ -33,16 +29,13 @@ namespace SoftEngine
             renderHeight = bmp.Height;
             picturebox = p;
 
-            //potrzeba * 4 bo jeden pixel reprezetowany jako ARGB na 4 bajtach 
             backBuffer = new byte[bmp.Width * bmp.Height * 4];
 
             ZBuffer = new double[bmp.Width * bmp.Height];
         }
 
-        // Metoda czyści bufory na zadany kolor
         public void Clear(byte a, byte r, byte g, byte b)
         {
-            // czyszczenie back buffora
             for (var index = 0; index < backBuffer.Length; index += 4)
             {
                 backBuffer[index] = r;
@@ -51,27 +44,21 @@ namespace SoftEngine
                 backBuffer[index + 3] = a;
             }
 
-            // czyszczenie depth buffora
             for (var index = 0; index < ZBuffer.Length; index++)
             {
                 ZBuffer[index] = float.MaxValue;
             }
         }
 
-        //przepisuje wartość backbuffora do bitmapy a bitmape do picrureboxa 
         public void Present()
         {
             using (var stream = new MemoryStream(bmp.Bits))
             {
-                // przepisuje bajty z buffora na bitmapę
                 stream.Write(backBuffer, 0, backBuffer.Length);
             }
-
-            //przypisuje bitmape do pictureboxa/przerysowuje
             picturebox.Image = bmp.Bitmap;
         }
 
-        // wrzuca pixel o odpowiednich współrzędnych do backbuffora (jeśli jest takowa potrzeba)
         public void PutPixel(int x, int y, float z, System.Drawing.Color color)
         {
             // indexy w odpowiednich bufforach
@@ -92,53 +79,13 @@ namespace SoftEngine
             backBuffer[index4 + 3] = (byte)(color.A);
         }
 
-        public Vertex Project(Vertex vertex, Matrix transMat, Matrix world)
-        {
-            // transforming the coordinates into 2D space
-            //var point2d = Vector3.TransformCoordinate(vertex.Coordinates, transMat);
-
-            var p1 = vertex.Coordinates;
-            var p2 = vertex.Normal;
-            transMat.Transpose();
-            var point2d = TransitionMatrices.TransformCoordinateWithMatrix(p1, transMat);
-            transMat.Transpose();
-
-
-            // transforming the coordinates & the normal to the vertex in the 3D world
-
-
-            //var point3dWorld = Vector3.TransformCoordinate(vertex.Coordinates, world);
-            //var normal3dWorld = Vector3.TransformCoordinate(vertex.Normal, world);
-            world.Transpose();
-            var point3dWorld = TransitionMatrices.TransformCoordinateWithMatrix(p1, world);
-            var normal3dWorld = TransitionMatrices.TransformCoordinateWithMatrix(p2, world);
-            world.Transpose();
-
-
-            // The transformed coordinates will be based on coordinate system
-            // starting on the center of the screen. But drawing on screen normally starts
-            // from top left. We then need to transform them again to have x:0, y:0 on top left.
-            var x = point2d.X * renderWidth + renderWidth / 2.0f;
-            var y = -point2d.Y * renderHeight + renderHeight / 2.0f;
-
-            return new Vertex
-            {
-                Coordinates = new Vector4(x, y, point2d.Z,1),
-                Normal =normal3dWorld,
-                WorldCoordinates =point3dWorld
-            };
-        }
         public void MyRender(Camera camera, Mesh[][] meshes, List<Light> lights)
         {
             var viewMatrix = TransitionMatrices.LookAt(camera);
-            viewMatrix = Matrix.LookAtRH(camera.Position, camera.Target, camera.Up);
-            viewMatrix.Transpose();
-            var ProjectionMatrix= TransitionMatrices.Prespective(0.8f, 1, 0.01f, 10.0f);
-            ProjectionMatrix = Matrix.PerspectiveFovRH(0.8f, 1, 0.01f, 10.0f);
-            ProjectionMatrix.Transpose();
+            var ProjectionMatrix= TransitionMatrices.Prespective(0.8f, 1, 0.01f, 1.0f);
 
-            for(int fa=0;fa<meshes.Length; fa++)
-            //Parallel.For(0, meshes.Length, fa =>
+            //for(int fa=0;fa<meshes.Length; fa++)
+            Parallel.For(0, meshes.Length, fa =>
                  {
                      List<Polygon> l = new List<Polygon>();
 
@@ -150,8 +97,6 @@ namespace SoftEngine
                          var vertexB = meshes[fa][0].Vertices[face.B];
                          var vertexC = meshes[fa][0].Vertices[face.C];
                          Polygon p = new Polygon(face.Color, vertexA, vertexB, vertexC);
-
-
 
                          p.MakeTemporaryVertexStructureList(WorldMatrix, viewMatrix, ProjectionMatrix);
                          //p.ClipByCuttingPlanes();
@@ -173,16 +118,12 @@ namespace SoftEngine
                              s.Fill(tmp.color,lights);
                          }
                      }
-                 }//);
+                 });
         }
 
-        //wczytanie pliku JSONowego ze strkturą
         public async Task<Mesh[]> LoadJSONFileAsync(string fileName, bool IfRandomColores, System.Drawing.Color col,float scale = 1.0f)
         {
             var meshes = new List<Mesh>();
-            // var file = await System.Windows.ApplicationModel.Package.Current.InstalledLocation.GetFileAsync(fileName);
-            //var data = await Windows.Storage.FileIO.ReadTextAsync(file);
-            //string path = @"D:ProgramerenEngine ProjectSoftEngineSoftEngine" + fileName;
 
             string path = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), fileName);
 
@@ -266,6 +207,5 @@ namespace SoftEngine
             }
             return meshes.ToArray();
         }
-
     }
 }
