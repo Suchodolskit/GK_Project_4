@@ -16,14 +16,16 @@ namespace SoftEngine
         public List<Edge> Edges;
         public Device device;
         public Camera camera;
-        public int shading; // 0 - flat, 1 - Gourand 
+        public int shading; // 0 - flat, 1 - Gourand
+        public Vector3 BackGroundLight;
 
-        public Scanline(Device device, List<Edge> l,Camera c, int shading=0)
+        public Scanline(Device device, List<Edge> l,Camera c, Vector3 BackGroundLight, int shading=0)
         {
             this.device = device;
             Edges = l;
             camera = c;
             this.shading = shading;
+            this.BackGroundLight = BackGroundLight;
         }
         private class AETListElement
         {
@@ -110,7 +112,7 @@ namespace SoftEngine
             {
                 Vector4 DrawingPoint = (Edges[0].vertex1.pw + Edges[1].vertex1.pw + Edges[2].vertex1.pw) / 3;
                 var NormalVector = (Edges[0].vertex1.nw + Edges[1].vertex1.nw + Edges[2].vertex1.nw) / 3;
-                col = PhongIllumination.Compute(ka, ks, ks, camera.Position, DrawingPoint, NormalVector, new Vector3(0.0f, 0.0f, 0.0f), lights, 1);
+                col = PhongIllumination.Compute(ka, ks, ks, camera.Position, DrawingPoint, NormalVector, BackGroundLight, lights, 1);
             }
 
             int minY, maxY;
@@ -142,10 +144,10 @@ namespace SoftEngine
 
                     if (shading == 1)
                     {
-                        var col11 = PhongIllumination.ComputeVector(ka, ks, ks, camera.Position, e1.vertex1.pw, e1.vertex1.nw, new Vector3(0.0f, 0.0f, 0.0f), lights, 1);
-                        var col12 = PhongIllumination.ComputeVector(ka, ks, ks, camera.Position, e1.vertex2.pw, e1.vertex2.nw, new Vector3(0.0f, 0.0f, 0.0f), lights, 1);
-                        var col21 = PhongIllumination.ComputeVector(ka, ks, ks, camera.Position, e2.vertex1.pw, e2.vertex1.nw, new Vector3(0.0f, 0.0f, 0.0f), lights, 1);
-                        var col22 = PhongIllumination.ComputeVector(ka, ks, ks, camera.Position, e2.vertex2.pw, e2.vertex2.nw, new Vector3(0.0f, 0.0f, 0.0f), lights, 1);
+                        var col11 = PhongIllumination.ComputeVector(ka, ks, ks, camera.Position, e1.vertex1.pw, e1.vertex1.nw, BackGroundLight, lights, 1);
+                        var col12 = PhongIllumination.ComputeVector(ka, ks, ks, camera.Position, e1.vertex2.pw, e1.vertex2.nw, BackGroundLight, lights, 1);
+                        var col21 = PhongIllumination.ComputeVector(ka, ks, ks, camera.Position, e2.vertex1.pw, e2.vertex1.nw, BackGroundLight, lights, 1);
+                        var col22 = PhongIllumination.ComputeVector(ka, ks, ks, camera.Position, e2.vertex2.pw, e2.vertex2.nw, BackGroundLight, lights, 1);
                         s = new Shading(e1, col11, col12, e2, col21, col22);
                     }
 

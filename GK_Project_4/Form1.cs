@@ -38,7 +38,6 @@ namespace GK_Project_4
         {
             device.Clear(255, 0, 0, 0);
             t = t + 0.05;
-            //((SpotLight)lights[0]).Position = new Vector3((float)(20*Math.Cos(t)), ((SpotLight)lights[0]).Position.Y, (float)(20*Math.Sin(t)));
             meshes[4][0].Position = new Vector3(meshes[4][0].Position.X, meshes[4][0].Position.Y, meshes[4][0].Position.Z + eps);
             meshes[4][0].Rotation = new Vector3(meshes[4][0].Rotation.X + eps, meshes[4][0].Rotation.Y, meshes[4][0].Rotation.Z);
             if (meshes[4][0].Position.Z >= 5) eps = -eps;
@@ -46,7 +45,7 @@ namespace GK_Project_4
 
             meshes[3][0].Rotation = new Vector3(meshes[3][0].Rotation.X+0.1f, meshes[3][0].Rotation.Y, meshes[3][0].Rotation.Z);
             MovingObjectMovingCamera.Target = meshes[4][0].Position;
-            MovingObjectMovingCamera.Position = new Vector3(meshes[4][0].Position.X - 10.0f, meshes[4][0].Position.Y + 10.0f, meshes[4][0].Position.Z);
+            MovingObjectMovingCamera.Position = new Vector3(meshes[4][0].Position.X - 15.0f, meshes[4][0].Position.Y + 15.0f, meshes[4][0].Position.Z);
             MovingObjectFixedCamera.Target = meshes[4][0].Position;
 
             device.MyRender(ActCamera, meshes, lights);
@@ -57,7 +56,7 @@ namespace GK_Project_4
         {
             pictureBox1.Width = 640; pictureBox1.Height = 480;
             DirectBitmap bmp = new DirectBitmap(640,480);
-            device = new Device(bmp,pictureBox1);
+            device = new Device(bmp,pictureBox1,new Vector3(0,0,0));
 
             meshes = new Mesh[5][];
 
@@ -151,9 +150,6 @@ namespace GK_Project_4
             return mesh;
         }
 
-        private void button1_Click(object sender, EventArgs e) { 
-        }
-
         private void radioButton1_CheckedChanged(object sender, EventArgs e)
         {
             device.shading = 0;
@@ -177,6 +173,16 @@ namespace GK_Project_4
         private void radioButton5_CheckedChanged(object sender, EventArgs e)
         {
             ActCamera = MovingObjectFixedCamera;
+        }
+
+        private void radioButton3_CheckedChanged(object sender, EventArgs e)
+        {
+            device.BackgroundLight = new Vector3(0, 0, 0);
+        }
+
+        private void radioButton6_CheckedChanged(object sender, EventArgs e)
+        {
+            device.BackgroundLight = new Vector3(0.5f, 0.5f, 0.5f);
         }
     }
 }

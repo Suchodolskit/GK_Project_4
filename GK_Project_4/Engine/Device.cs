@@ -20,11 +20,12 @@ namespace SoftEngine
         public readonly int renderWidth;
         public readonly int renderHeight;
         public int shading = 0;
+        public Vector3 BackgroundLight;
 
 
         private PictureBox picturebox;
 
-        public Device(DirectBitmap bmp, PictureBox p)
+        public Device(DirectBitmap bmp, PictureBox p, Vector3 BackGroundLight)
         {
             this.bmp = bmp;
             renderWidth = bmp.Width;
@@ -34,6 +35,7 @@ namespace SoftEngine
             backBuffer = new byte[bmp.Width * bmp.Height * 4];
 
             ZBuffer = new double[bmp.Width * bmp.Height];
+            this.BackgroundLight = BackGroundLight;
         }
 
         public void Clear(byte a, byte r, byte g, byte b)
@@ -115,7 +117,7 @@ namespace SoftEngine
                          {
                              l2.Add(tmp);
                              var lis = tmp.PrepareEdgesToScanLineAlgorithm(renderWidth, renderHeight);
-                             Scanline s = new Scanline(this, lis, camera, shading);
+                             Scanline s = new Scanline(this, lis, camera, BackgroundLight, shading);
                              s.Fill(tmp.color, lights);
                          }
                      }
