@@ -19,6 +19,8 @@ namespace SoftEngine
 
         public readonly int renderWidth;
         public readonly int renderHeight;
+        public int shading = 0;
+
 
         private PictureBox picturebox;
 
@@ -82,14 +84,14 @@ namespace SoftEngine
         public void MyRender(Camera camera, Mesh[][] meshes, List<Light> lights)
         {
             var viewMatrix = TransitionMatrices.LookAt(camera);
-            var ProjectionMatrix= TransitionMatrices.Prespective(0.8f, 1, 0.01f, 1.0f);
+            var ProjectionMatrix= TransitionMatrices.Prespective(0.8f, (float)renderHeight/renderWidth, 0.01f, 1.0f);
 
-            for(int fa=0;fa<meshes.Length; fa++)
-            //Parallel.For(0, meshes.Length, fa =>
+            //for(int fa=0;fa<meshes.Length; fa++)
+            Parallel.For(0, meshes.Length, fa =>
                  {
                      List<Polygon> l = new List<Polygon>();
 
-                     var WorldMatrix = TransitionMatrices.RotationX(meshes[fa][0].Rotation.Y) * TransitionMatrices.RotationX(meshes[fa][0].Rotation.X) * TransitionMatrices.RotationX(meshes[fa][0].Rotation.Z) * TransitionMatrices.Translation(meshes[fa][0].Position);
+                     var WorldMatrix = TransitionMatrices.Translation(meshes[fa][0].Position) * TransitionMatrices.RotationX(meshes[fa][0].Rotation.Y) * TransitionMatrices.RotationX(meshes[fa][0].Rotation.X) * TransitionMatrices.RotationX(meshes[fa][0].Rotation.Z);
 
                      foreach (var face in meshes[fa][0].Faces)
                      {
@@ -101,7 +103,6 @@ namespace SoftEngine
                          p.MakeTemporaryVertexStructureList(WorldMatrix, viewMatrix, ProjectionMatrix);
                          //p.ClipByCuttingPlanes();
                          p.Computepprim();
-                         //p.ClipByWindowSize();
                          l.Add(p);
                      }
 
@@ -114,11 +115,11 @@ namespace SoftEngine
                          {
                              l2.Add(tmp);
                              var lis = tmp.PrepareEdgesToScanLineAlgorithm(renderWidth, renderHeight);
-                             Scanline s = new Scanline(this, lis,camera);
+                             Scanline s = new Scanline(this, lis,camera,shading);
                              s.Fill(tmp.color,lights);
                          }
                      }
-                 }//);
+                 });
         }
 
         public async Task<Mesh[]> LoadJSONFileAsync(string fileName, bool IfRandomColores, System.Drawing.Color col,float scale = 1.0f)

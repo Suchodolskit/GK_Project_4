@@ -32,9 +32,12 @@ namespace GK_Project_4
         void CompositionTarget_Rendering(object sender, object e)
         {
             device.Clear(255, 0, 0, 0);
-            t = t + 0.1;
-            ((PointLight)lights[0]).Position = new Vector3((float)(2*Math.Cos(t)), ((PointLight)lights[0]).Position.Y, (float)(2*Math.Sin(t)));
-
+            t = t + 0.05;
+            //((SpotLight)lights[0]).Position = new Vector3((float)(20*Math.Cos(t)), ((SpotLight)lights[0]).Position.Y, (float)(20*Math.Sin(t)));
+            meshes[4][0].Position = new Vector3(meshes[4][0].Position.X, meshes[4][0].Position.Y, meshes[4][0].Position.Z + 0.1f);
+            meshes[3][0].Rotation = new Vector3(meshes[3][0].Rotation.X+0.1f, meshes[3][0].Rotation.Y, meshes[3][0].Rotation.Z);
+            camera.Target = meshes[4][0].Position;
+            camera.Position = new Vector3(meshes[4][0].Position.X - 5.0f, meshes[4][0].Position.Y + 5.0f, meshes[4][0].Position.Z);
 
             device.MyRender(camera, meshes, lights);
             device.Present();
@@ -42,32 +45,32 @@ namespace GK_Project_4
 
         private async void Form1_Load(object sender, EventArgs e)
         {
-            pictureBox1.Width = 500; pictureBox1.Height = 500;
-            DirectBitmap bmp = new DirectBitmap(500,500);
+            pictureBox1.Width = 640; pictureBox1.Height = 480;
+            DirectBitmap bmp = new DirectBitmap(640,480);
             device = new Device(bmp,pictureBox1);
 
-            meshes = new Mesh[16][];
+            meshes = new Mesh[5][];
 
             meshes[0] = await device.LoadJSONFileAsync(@"Meshes/Plate.babylon",false,System.Drawing.Color.Green,3);
             meshes[0][0].Position = new Vector3(0, 0, 0);
             meshes[0][0].Rotation = new Vector3(0,(float)Math.PI, 0);
 
-            meshes[1] = await device.LoadJSONFileAsync(@"Meshes/Ball.babylon", false, System.Drawing.Color.Red, 0.2f);
-            meshes[1][0].Position = new Vector3(0, 0, 0);
+            meshes[1] = await device.LoadJSONFileAsync(@"Meshes/Ball.babylon", false, System.Drawing.Color.Red, 1.0f);
+            meshes[1][0].Position = new Vector3(0, 1.0f, 0);
 
-       
-            var m = MakeBillardTriangle(meshes[1][0], new Vector3(0.0f,0.2f,0.0f), 0.2f);
+
+            var m = MakeBillardTriangle(meshes[1][0], new Vector3(0.0f, 1.5f, 0.0f), 1.0f);
             for (int i = 1; i <= m.Length; i++)
             {
                 meshes[i] = m[i - 1];
             }
 
-            camera.Position = new Vector3(0, 4f, 0f);
+            camera.Position = new Vector3(0, 20f, -20f);
             camera.Target = new Vector3(0,0,0);
-            camera.Up = new Vector3(0, 0, 1);
+            camera.Up = new Vector3(0, 1, 0);
 
             lights = new List<Light>();
-            lights.Add(new PointLight(new Vector3(0,1,0),new Vector3(1,1,1)));
+            lights.Add(new DirectionalLight(new Vector3(-1,0,0),new Vector3(1,1,1)));
 
             Rendring = new Timer();
             Rendring.Tick += CompositionTarget_Rendering;
@@ -78,7 +81,7 @@ namespace GK_Project_4
 
         private Mesh[][] MakeBillardTriangle(Mesh ball, Vector3 Position, float radius)
         {
-            Mesh[][] Balls = new Mesh[15][];
+            Mesh[][] Balls = new Mesh[4][];
             Position.Z = -(float)2 * (float)Math.Sqrt(3) * radius;
             Position.X = radius;
             for (int i = 0; i < Balls.Length; i++)
@@ -88,31 +91,20 @@ namespace GK_Project_4
                 Balls[i][0].Position = Position;
             }
             float pos = -5.0f * radius;
-            for (int i = 0; i < 5; i++)
-            {
-                Balls[i][0].Position = new Vector3(Balls[i][0].Position.X + pos, Balls[i][0].Position.Y, Balls[i][0].Position.Z);
-                pos += 2 * radius;
-            }
-            pos = -4.0f * radius;
-            for (int i = 5; i < 9; i++)
-            {
-                Balls[i][0].Position = new Vector3(Balls[i][0].Position.X + pos, Balls[i][0].Position.Y, Balls[i][0].Position.Z + (float)Math.Sqrt(3) * radius);
-                pos += 2 * radius;
-            }
-            pos = -3.0f * radius;
-            for (int i = 9; i < 12; i++)
-            {
-                Balls[i][0].Position = new Vector3(Balls[i][0].Position.X + pos, Balls[i][0].Position.Y, Balls[i][0].Position.Z + (float)2 * (float)Math.Sqrt(3) * radius);
-                pos += 2 * radius;
-            }
             pos = -2.0f * radius;
-            for (int i = 12; i < 14; i++)
+            for (int i = 0; i < 2; i++)
             {
                 Balls[i][0].Position = new Vector3(Balls[i][0].Position.X + pos, Balls[i][0].Position.Y, Balls[i][0].Position.Z + (float)3 * (float)Math.Sqrt(3) * radius);
                 pos += 2 * radius;
             }
             pos = -1.0f * radius;
-            Balls[14][0].Position = new Vector3(Balls[14][0].Position.X + pos, Balls[14][0].Position.Y, Balls[14][0].Position.Z + (float)4 * (float)Math.Sqrt(3) * radius);
+            Balls[2][0].Position = new Vector3(Balls[2][0].Position.X + pos, Balls[2][0].Position.Y, Balls[2][0].Position.Z + (float)2 * (float)Math.Sqrt(3) * radius);
+
+            Balls[3][0].Position = new Vector3(Balls[3][0].Position.X + pos, Balls[3][0].Position.Y, Balls[2][0].Position.Z + (float)-3 * (float)Math.Sqrt(3) * radius);
+            for (int i=0;i<Balls[3][0].Faces.Length;i++)
+            {
+                Balls[3][0].Faces[i].Color = System.Drawing.Color.White;
+            }
 
             return Balls;
         }
@@ -146,6 +138,16 @@ namespace GK_Project_4
         }
 
         private void button1_Click(object sender, EventArgs e) { 
+        }
+
+        private void radioButton1_CheckedChanged(object sender, EventArgs e)
+        {
+            device.shading = 0;
+        }
+
+        private void radioButton2_CheckedChanged(object sender, EventArgs e)
+        {
+            device.shading = 1;
         }
     }
 }

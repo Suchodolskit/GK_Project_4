@@ -16,22 +16,23 @@ namespace SoftEngine
         private Vector3 c21;
         private Vector3 c22;
 
-
         public Shading(Edge edge1, Vector3 Edge1Vertex1Color, Vector3 Edge1Vertex2Color, Edge edge2, Vector3 Edge2Vertex1Color, Vector3 Edge2Vertex2Color)
         {
             e1 = edge1; e2 = edge2; c11 = Edge1Vertex1Color; c12 = Edge1Vertex2Color; c21 = Edge2Vertex1Color; c22 = Edge2Vertex2Color;
         }
 
-        public Vector3 ComputeColor(int x, int y)
+        public Shading() { }
+        public Vector3 ComputeColorGouraud(int x, int y)
         {
+
             var gradient1 = e1.HigherPoint().Y != e1.LowerPoint().Y ? (y - e1.HigherPoint().Y) / (e1.LowerPoint().Y - e1.HigherPoint().Y) : 1;
             var gradient2 = e2.HigherPoint().Y != e2.LowerPoint().Y ? (y - e2.HigherPoint().Y) / (e2.LowerPoint().Y - e2.HigherPoint().Y) : 1;
 
+            if (e1.vertex1.pprim.Y < e1.vertex2.pprim.Y) gradient1 = 1-gradient1;
+            if (e2.vertex1.pprim.Y < e2.vertex2.pprim.Y) gradient2 = 1-gradient2;
+
             float x1 = Interpolate(e1.vertex1.pprim.X, e1.vertex2.pprim.X, gradient1);
             float x2 = Interpolate(e2.vertex1.pprim.X, e2.vertex2.pprim.X, gradient2);
-
-            //if (e1.vertex1.pprim.Y < e1.vertex2.pprim.Y) gradient1 = -gradient1;
-            //if (e2.vertex1.pprim.Y < e2.vertex2.pprim.Y) gradient2 = -gradient2;
 
             float r1 = Interpolate(c11.X, c12.X, gradient1); 
             float g1 = Interpolate(c11.Y, c12.Y, gradient1); 
@@ -44,7 +45,7 @@ namespace SoftEngine
             float left = x1 < x2 ? x1 : x2;
             float right = x1 > x2 ? x1 : x2;
 
-            var gradientx = x1 != x2 ? (x - right) / (left - right) : 1;
+            var gradientx = x1 != x2 ? (x - left) / (right - left) : 1;
 
             float r = Interpolate(r1, r2, gradientx);
             float g = Interpolate(g1, g2, gradientx);
