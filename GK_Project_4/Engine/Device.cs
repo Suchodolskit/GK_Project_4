@@ -86,8 +86,8 @@ namespace SoftEngine
             var viewMatrix = TransitionMatrices.LookAt(camera);
             var ProjectionMatrix= TransitionMatrices.Prespective(0.8f, (float)renderHeight/renderWidth, 0.01f, 1.0f);
 
-            //for(int fa=0;fa<meshes.Length; fa++)
-            Parallel.For(0, meshes.Length, fa =>
+            for(int fa=0;fa<meshes.Length; fa++)
+            //Parallel.For(0, meshes.Length, fa =>
                  {
                      List<Polygon> l = new List<Polygon>();
 
@@ -115,11 +115,11 @@ namespace SoftEngine
                          {
                              l2.Add(tmp);
                              var lis = tmp.PrepareEdgesToScanLineAlgorithm(renderWidth, renderHeight);
-                             Scanline s = new Scanline(this, lis,camera,shading);
-                             s.Fill(tmp.color,lights);
+                             Scanline s = new Scanline(this, lis, camera, shading);
+                             s.Fill(tmp.color, lights);
                          }
                      }
-                 });
+                 }//);
         }
 
         public async Task<Mesh[]> LoadJSONFileAsync(string fileName, bool IfRandomColores, System.Drawing.Color col,float scale = 1.0f)
