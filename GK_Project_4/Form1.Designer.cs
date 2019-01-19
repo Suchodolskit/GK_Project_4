@@ -42,6 +42,7 @@
             this.label1 = new System.Windows.Forms.Label();
             this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
+            this.radioButton7 = new System.Windows.Forms.RadioButton();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
@@ -58,11 +59,12 @@
             // 
             // panel1
             // 
+            this.panel1.Controls.Add(this.radioButton7);
             this.panel1.Controls.Add(this.radioButton2);
             this.panel1.Controls.Add(this.radioButton1);
             this.panel1.Location = new System.Drawing.Point(646, 50);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(199, 68);
+            this.panel1.Size = new System.Drawing.Size(199, 103);
             this.panel1.TabIndex = 2;
             // 
             // radioButton2
@@ -94,7 +96,7 @@
             this.panel2.Controls.Add(this.radioButton5);
             this.panel2.Controls.Add(this.radioButton4);
             this.panel2.Controls.Add(this.Fixed);
-            this.panel2.Location = new System.Drawing.Point(645, 154);
+            this.panel2.Location = new System.Drawing.Point(645, 184);
             this.panel2.Name = "panel2";
             this.panel2.Size = new System.Drawing.Size(200, 79);
             this.panel2.TabIndex = 3;
@@ -138,7 +140,7 @@
             // 
             this.panel3.Controls.Add(this.radioButton6);
             this.panel3.Controls.Add(this.radioButton3);
-            this.panel3.Location = new System.Drawing.Point(645, 265);
+            this.panel3.Location = new System.Drawing.Point(645, 290);
             this.panel3.Name = "panel3";
             this.panel3.Size = new System.Drawing.Size(200, 70);
             this.panel3.TabIndex = 4;
@@ -173,15 +175,15 @@
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
             this.label1.Location = new System.Drawing.Point(645, 22);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(85, 25);
+            this.label1.Size = new System.Drawing.Size(150, 25);
             this.label1.TabIndex = 5;
-            this.label1.Text = "Shading";
+            this.label1.Text = "GouardShading";
             // 
             // label2
             // 
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.label2.Location = new System.Drawing.Point(645, 121);
+            this.label2.Location = new System.Drawing.Point(645, 156);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(82, 25);
             this.label2.TabIndex = 6;
@@ -191,11 +193,23 @@
             // 
             this.label3.AutoSize = true;
             this.label3.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.label3.Location = new System.Drawing.Point(645, 237);
+            this.label3.Location = new System.Drawing.Point(645, 266);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(138, 25);
             this.label3.TabIndex = 7;
             this.label3.Text = "time of the day";
+            // 
+            // radioButton7
+            // 
+            this.radioButton7.AutoSize = true;
+            this.radioButton7.Location = new System.Drawing.Point(13, 60);
+            this.radioButton7.Name = "radioButton7";
+            this.radioButton7.Size = new System.Drawing.Size(56, 17);
+            this.radioButton7.TabIndex = 2;
+            this.radioButton7.TabStop = true;
+            this.radioButton7.Text = "Phong";
+            this.radioButton7.UseVisualStyleBackColor = true;
+            this.radioButton7.CheckedChanged += new System.EventHandler(this.radioButton7_CheckedChanged);
             // 
             // Form1
             // 
@@ -240,6 +254,7 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.RadioButton radioButton7;
     }
 }
 

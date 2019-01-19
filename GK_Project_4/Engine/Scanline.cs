@@ -16,7 +16,7 @@ namespace SoftEngine
         public List<Edge> Edges;
         public Device device;
         public Camera camera;
-        public int shading; // 0 - flat, 1 - Gourand
+        public int shading; // 0 - flat, 1 - Gourand, 2 - Phong
         public Vector3 BackGroundLight;
 
         public Scanline(Device device, List<Edge> l,Camera c, Vector3 BackGroundLight, int shading=0)
@@ -140,7 +140,8 @@ namespace SoftEngine
 
                     Edge e1 = AET[j].edge;
                     Edge e2 = AET[j + 1].edge;
-                    Shading s=new Shading();
+                    GouardShading s=new GouardShading();
+                    PhongShading ps=new PhongShading();
 
                     if (shading == 1)
                     {
@@ -148,9 +149,12 @@ namespace SoftEngine
                         var col12 = PhongIllumination.ComputeVector(ka, ks, ks, camera.Position, e1.vertex2.pw, e1.vertex2.nw, BackGroundLight, lights, 1);
                         var col21 = PhongIllumination.ComputeVector(ka, ks, ks, camera.Position, e2.vertex1.pw, e2.vertex1.nw, BackGroundLight, lights, 1);
                         var col22 = PhongIllumination.ComputeVector(ka, ks, ks, camera.Position, e2.vertex2.pw, e2.vertex2.nw, BackGroundLight, lights, 1);
-                        s = new Shading(e1, col11, col12, e2, col21, col22);
+                        s = new GouardShading(e1, col11, col12, e2, col21, col22);
                     }
-
+                    if (shading == 2)
+                    {
+                        ps = new PhongShading(e1, e2);
+                    }
 
                     var gradient1 = e1.HigherPoint().Y != e1.LowerPoint().Y ? (i - e1.HigherPoint().Y) / (e1.LowerPoint().Y - e1.HigherPoint().Y) : 1;
                     var gradient2 = e2.HigherPoint().Y != e2.LowerPoint().Y ? (i - e2.HigherPoint().Y) / (e2.LowerPoint().Y - e2.HigherPoint().Y) : 1;
@@ -173,7 +177,13 @@ namespace SoftEngine
                         {
                             if (shading == 1)
                             {
-                                var tmp=s.ComputeColorGouraud(x, i);
+                                var tmp=s.ComputeColor(x, i);
+                                col = System.Drawing.Color.FromArgb((int)(tmp.X * 255), (int)(tmp.Y * 255), (int)(tmp.Z * 255));
+                            }
+                            if (shading == 2)
+                            {
+                                var n = ps.ComputeNormal(x, i);
+                                var tmp = PhongIllumination.ComputeVector(ka, ks, ks, camera.Position, e1.vertex1.pw, n, BackGroundLight, lights, 1);
                                 col = System.Drawing.Color.FromArgb((int)(tmp.X * 255), (int)(tmp.Y * 255), (int)(tmp.Z * 255));
                             }
                             device.PutPixel(x, i,z, col);

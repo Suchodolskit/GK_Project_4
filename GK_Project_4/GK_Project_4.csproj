@@ -71,9 +71,6 @@
     </Compile>
     <Compile Include="Engine\Mesh.cs" />
     <Compile Include="Engine\MatrixOperationExtender.cs" />
-    <Compile Include="Game\Ball.cs" />
-    <Compile Include="Game\Game.cs" />
-    <Compile Include="Game\Table.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="Form1.resx">
@@ -92,6 +89,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Meshes\Plate.babylon">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Meshes\table.babylon">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="packages.config" />

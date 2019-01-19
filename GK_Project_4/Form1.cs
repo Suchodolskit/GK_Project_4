@@ -40,8 +40,8 @@ namespace GK_Project_4
             t = t + 0.05;
             meshes[4][0].Position = new Vector3(meshes[4][0].Position.X, meshes[4][0].Position.Y, meshes[4][0].Position.Z + eps);
             meshes[4][0].Rotation = new Vector3(meshes[4][0].Rotation.X + eps, meshes[4][0].Rotation.Y, meshes[4][0].Rotation.Z);
-            if (meshes[4][0].Position.Z >= 5) eps = -eps;
-            if (meshes[4][0].Position.Z <= -5) eps = -eps;
+            if (meshes[4][0].Position.Z >= 4) eps = -eps;
+            if (meshes[4][0].Position.Z <= -4) eps = -eps;
 
             meshes[3][0].Rotation = new Vector3(meshes[3][0].Rotation.X+0.1f, meshes[3][0].Rotation.Y, meshes[3][0].Rotation.Z);
             MovingObjectMovingCamera.Target = meshes[4][0].Position;
@@ -60,9 +60,8 @@ namespace GK_Project_4
 
             meshes = new Mesh[5][];
 
-            meshes[0] = await device.LoadJSONFileAsync(@"Meshes/Plate.babylon",false,System.Drawing.Color.Green,3);
-            meshes[0][0].Position = new Vector3(0, 0, 0);
-            meshes[0][0].Rotation = new Vector3(0,(float)Math.PI, 0);
+            meshes[0] = new Mesh[1];
+            meshes[0][0] = ProduceTable(5);
 
             meshes[1] = await device.LoadJSONFileAsync(@"Meshes/Ball.babylon", false, System.Drawing.Color.Red, 1.0f);
             meshes[1][0].Position = new Vector3(0, 1.0f, 0);
@@ -78,7 +77,7 @@ namespace GK_Project_4
             Fixedcamera.Target = new Vector3(0,0,0);
             Fixedcamera.Up = new Vector3(0, 1, 0);
             MovingObjectFixedCamera.Up = new Vector3(0, 1, 0);
-            MovingObjectFixedCamera.Position = new Vector3(15, 10, 0);
+            MovingObjectFixedCamera.Position = new Vector3(20, 10, 0);
             MovingObjectMovingCamera.Up = new Vector3(0, 1, 0);
             ActCamera = Fixedcamera;
 
@@ -150,6 +149,33 @@ namespace GK_Project_4
             return mesh;
         }
 
+        private Mesh ProduceTable(float scale=1)
+        {
+            var mesh = new SoftEngine.Mesh("Table", 9 * 5, 16 * 4);
+            float actz = -1*scale;
+            float actx = -0.5f*scale;
+            for (int i = 0; i < 45; i++)
+            {
+                float x = actx;
+                float y = 0;
+                float z = actz;
+                mesh.Vertices[i] = new Vertex();
+                mesh.Vertices[i].Coordinates = new Vector4(actx, 0, actz, 1);
+                mesh.Vertices[i].Normal = new Vector4(0, 1, 0, 0);
+                if (actz < 1*scale) { actz += 0.25f*scale; }
+                else { actz = -1*scale;actx += 0.25f*scale; }
+            }
+            for (int i = 0; i < 4; i++)
+            {
+                for (int j = 0; j < 8; j++)
+                {
+                    mesh.Faces[i*16+j*2] = new Face { A = i*9+j, B = i*9+j + 1, C = i*9+j + 1 + 9, Color = System.Drawing.Color.Green };
+                    mesh.Faces[i*16+j*2+1] = new Face { A = i*9+j, B = i * 9 + j + 9, C = i*9+j + 1 + 9, Color = System.Drawing.Color.Green };
+                }
+            }
+            return mesh;
+        }
+
         private void radioButton1_CheckedChanged(object sender, EventArgs e)
         {
             device.shading = 0;
@@ -183,6 +209,11 @@ namespace GK_Project_4
         private void radioButton6_CheckedChanged(object sender, EventArgs e)
         {
             device.BackgroundLight = new Vector3(0.5f, 0.5f, 0.5f);
+        }
+
+        private void radioButton7_CheckedChanged(object sender, EventArgs e)
+        {
+            device.shading = 2;
         }
     }
 }
