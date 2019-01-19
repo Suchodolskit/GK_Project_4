@@ -69,7 +69,6 @@ namespace SoftEngine
         public Vector3 Direction;
         public Vector3 color;
         public float focus;
-
         public SpotLight(Vector3 position, Vector3 direction, Vector3 color, float focus)
         {
             Position = position;
@@ -77,7 +76,6 @@ namespace SoftEngine
             this.color = color;
             this.focus = focus;
         }
-
         public override Vector3 ComputePhongIlumination(Vector3 ka, Vector3 kd, Vector3 ks, Vector3 CamPos, Vector4 ScenePoint, Vector4 SceneNormal, int m = 1)
         {
             Vector3 li = Vector3.Divide((Position - (Vector3)ScenePoint), (Position - (Vector3)ScenePoint).Length());

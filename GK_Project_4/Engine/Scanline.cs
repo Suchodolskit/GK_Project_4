@@ -206,6 +206,5 @@ namespace SoftEngine
         {
             return min + (max - min) * Clamp(gradient);
         }
-
     }
 }

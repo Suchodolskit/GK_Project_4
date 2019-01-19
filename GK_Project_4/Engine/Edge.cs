@@ -17,8 +17,6 @@ namespace SoftEngine
             this.vertex1 = vertex1;
             this.vertex2 = vertex2;
         }
-
-
         public Vector4 LowerPoint()
         {
             return vertex1.pprim.Y <= vertex2.pprim.Y ? vertex1.pprim : vertex2.pprim;

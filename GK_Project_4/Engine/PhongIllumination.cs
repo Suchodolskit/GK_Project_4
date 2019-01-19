@@ -38,7 +38,6 @@ namespace SoftEngine
 
             return System.Drawing.Color.FromArgb(R,G,B);
         }
-
         public static Vector3 ComputeVector(Vector3 ka, Vector3 kd, Vector3 ks, Vector3 CamPos, Vector4 ScenePoint, Vector4 SceneNormal, Vector3 Ia, List<Light> lights, int m)
         {
             float r = Ia.X * ka.X;

@@ -73,7 +73,6 @@ namespace SoftEngine
         {
             e1 = edge1; e2 = edge2;
         }
-
         public PhongShading() { }
         public Vector4 ComputeNormal(int x, int y)
         {
@@ -105,12 +104,10 @@ namespace SoftEngine
 
             return new Vector4(nx, ny, nz, 0.0f);
         }
-
         float Clamp(float value, float min = 0, float max = 1)
         {
             return Math.Max(min, Math.Min(value, max));
         }
-
         float Interpolate(float min, float max, float gradient)
         {
             return min + (max - min) * Clamp(gradient);

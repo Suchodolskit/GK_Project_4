@@ -88,8 +88,8 @@ namespace SoftEngine
             var viewMatrix = TransitionMatrices.LookAt(camera);
             var ProjectionMatrix= TransitionMatrices.Prespective(0.8f, (float)renderHeight/renderWidth, 0.01f, 1.0f);
 
-            for(int fa=0;fa<meshes.Length; fa++)
-            //Parallel.For(0, meshes.Length, fa =>
+            //for(int fa=0;fa<meshes.Length; fa++)
+            Parallel.For(0, meshes.Length, fa =>
                  {
                      List<Polygon> l = new List<Polygon>();
 
@@ -103,7 +103,6 @@ namespace SoftEngine
                          Polygon p = new Polygon(face.Color, vertexA, vertexB, vertexC);
 
                          p.MakeTemporaryVertexStructureList(WorldMatrix, viewMatrix, ProjectionMatrix);
-                         //p.ClipByCuttingPlanes();
                          p.Computepprim();
                          l.Add(p);
                      }
@@ -121,7 +120,7 @@ namespace SoftEngine
                              s.Fill(tmp.color, lights);
                          }
                      }
-                 }//);
+                 });
         }
 
         public async Task<Mesh[]> LoadJSONFileAsync(string fileName, bool IfRandomColores, System.Drawing.Color col,float scale = 1.0f)
@@ -146,14 +145,11 @@ namespace SoftEngine
             for (var meshIndex = 0; meshIndex < jsonObject.meshes.Count; meshIndex++)
             {
                 var verticesArray = jsonObject.meshes[meshIndex].vertices;
-                // Faces
                 var indicesArray = jsonObject.meshes[meshIndex].indices;
 
                 var uvCount = jsonObject.meshes[meshIndex].uvCount.Value;
                 var verticesStep = 1;
 
-                // Depending of the number of texture's coordinates per vertex
-                // we're jumping in the vertices array  by 6, 8 & 10 windows frame
                 switch ((int)uvCount)
                 {
                     case 0:
@@ -167,26 +163,21 @@ namespace SoftEngine
                         break;
                 }
 
-                // the number of interesting vertices information for us
                 var verticesCount = verticesArray.Count / verticesStep;
-                // number of faces is logically the size of the array divided by 3 (A, B, C)
                 var facesCount = indicesArray.Count / 3;
                 var mesh = new Mesh(jsonObject.meshes[meshIndex].name.Value, verticesCount, facesCount);
 
-                // Filling the Vertices array of our mesh first
                 for (var index = 0; index < verticesCount; index++)
                 {
                     var x = (float)verticesArray[index * verticesStep].Value*scale;
                     var y = (float)verticesArray[index * verticesStep + 1].Value*scale;
                     var z = (float)verticesArray[index * verticesStep + 2].Value*scale;
-                    // Loading the vertex normal exported by Blender
+
                     var nx = (float)verticesArray[index * verticesStep + 3].Value;
                     var ny = (float)verticesArray[index * verticesStep + 4].Value;
                     var nz = (float)verticesArray[index * verticesStep + 5].Value;
                     mesh.Vertices[index] = new Vertex { Coordinates = new Vector4(x, y, z,1), Normal = new Vector4(nx, ny, nz,0) };
                 }
-
-                // Then filling the Faces array
 
                 Random r = new Random();
 
@@ -203,7 +194,6 @@ namespace SoftEngine
                     }
                 }
 
-                // Getting the position you've set in Blender
                 var position = jsonObject.meshes[meshIndex].position;
                 mesh.Position = new Vector3((float)position[0].Value, (float)position[1].Value, (float)position[2].Value);
                 meshes.Add(mesh);
