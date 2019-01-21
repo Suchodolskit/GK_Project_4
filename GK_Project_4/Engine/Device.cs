@@ -69,13 +69,14 @@ namespace SoftEngine
         {
             var index = (x + y * renderWidth);
             var index4 = index * 4;
+            float z1 =(float)Math.Log(z);
 
-            if (ZBuffer[index] < z)
+            if (ZBuffer[index] < z1)
             {
                 return;
             }
 
-            ZBuffer[index] = z;
+            ZBuffer[index] = z1;
 
             backBuffer[index4] = (byte)(color.B);
             backBuffer[index4 + 1] = (byte)(color.G);
