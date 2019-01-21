@@ -21,11 +21,12 @@ namespace SoftEngine
         public readonly int renderHeight;
         public int shading = 0;
         public Vector3 BackgroundLight;
+        public int m;
 
 
         private PictureBox picturebox;
 
-        public Device(DirectBitmap bmp, PictureBox p, Vector3 BackGroundLight)
+        public Device(DirectBitmap bmp, PictureBox p, Vector3 BackGroundLight, int m)
         {
             this.bmp = bmp;
             renderWidth = bmp.Width;
@@ -36,6 +37,7 @@ namespace SoftEngine
 
             ZBuffer = new double[bmp.Width * bmp.Height];
             this.BackgroundLight = BackGroundLight;
+            this.m = m;
         }
 
         public void Clear(byte a, byte r, byte g, byte b)
@@ -65,16 +67,14 @@ namespace SoftEngine
 
         public void PutPixel(int x, int y, float z, System.Drawing.Color color)
         {
-            // indexy w odpowiednich bufforach
             var index = (x + y * renderWidth);
             var index4 = index * 4;
 
             if (ZBuffer[index] < z)
             {
-                return; // odrzucenie jeśli już na tym pixelu "jest coś bliżej"
+                return;
             }
 
-            //wypełnienie bufforów
             ZBuffer[index] = z;
 
             backBuffer[index4] = (byte)(color.B);
@@ -88,8 +88,8 @@ namespace SoftEngine
             var viewMatrix = TransitionMatrices.LookAt(camera);
             var ProjectionMatrix= TransitionMatrices.Prespective(0.8f, (float)renderHeight/renderWidth, 0.01f, 1.0f);
 
-            //for(int fa=0;fa<meshes.Length; fa++)
-            Parallel.For(0, meshes.Length, fa =>
+            for(int fa=0;fa<meshes.Length;fa++)
+            //Parallel.For(0, meshes.Length, fa =>
                  {
                      List<Polygon> l = new List<Polygon>();
 
@@ -116,11 +116,11 @@ namespace SoftEngine
                          {
                              l2.Add(tmp);
                              var lis = tmp.PrepareEdgesToScanLineAlgorithm(renderWidth, renderHeight);
-                             Scanline s = new Scanline(this, lis, camera, BackgroundLight, shading);
+                             Scanline s = new Scanline(this, lis, camera, BackgroundLight,m, shading);
                              s.Fill(tmp.color, lights);
                          }
                      }
-                 });
+                 }//);
         }
 
         public async Task<Mesh[]> LoadJSONFileAsync(string fileName, bool IfRandomColores, System.Drawing.Color col,float scale = 1.0f)

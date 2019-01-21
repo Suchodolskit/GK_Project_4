@@ -104,6 +104,79 @@ namespace SoftEngine
 
             return new Vector4(nx, ny, nz, 0.0f);
         }
+        public Vector4 ComputeWorldCoordinates(int x, int y)
+        {
+            var gradient1 = e1.HigherPoint().Y != e1.LowerPoint().Y ? (y - e1.HigherPoint().Y) / (e1.LowerPoint().Y - e1.HigherPoint().Y) : 1;
+            var gradient2 = e2.HigherPoint().Y != e2.LowerPoint().Y ? (y - e2.HigherPoint().Y) / (e2.LowerPoint().Y - e2.HigherPoint().Y) : 1;
+
+            if (e1.vertex1.pprim.Y < e1.vertex2.pprim.Y) gradient1 = 1 - gradient1;
+            if (e2.vertex1.pprim.Y < e2.vertex2.pprim.Y) gradient2 = 1 - gradient2;
+
+            float x1 = Interpolate(e1.vertex1.pprim.X, e1.vertex2.pprim.X, gradient1);
+            float x2 = Interpolate(e2.vertex1.pprim.X, e2.vertex2.pprim.X, gradient2);
+
+            float px1 = Interpolate(e1.vertex1.pw.X, e1.vertex2.pw.X, gradient1);
+            float py1 = Interpolate(e1.vertex1.pw.Y, e1.vertex2.pw.Y, gradient1);
+            float pz1 = Interpolate(e1.vertex1.pw.Z, e1.vertex2.pw.Z, gradient1);
+
+            float px2 = Interpolate(e2.vertex1.pw.X, e2.vertex2.pw.X, gradient2);
+            float py2 = Interpolate(e2.vertex1.pw.Y, e2.vertex2.pw.Y, gradient2);
+            float pz2 = Interpolate(e2.vertex1.pw.Z, e2.vertex2.pw.Z, gradient2);
+
+            float left = x1 < x2 ? x1 : x2;
+            float right = x1 > x2 ? x1 : x2;
+
+            var gradientx = x1 != x2 ? (x - left) / (right - left) : 1;
+
+            float px = Interpolate(px1, px2, gradientx);
+            float py = Interpolate(py1, py2, gradientx);
+            float pz = Interpolate(pz1, pz2, gradientx);
+
+            return new Vector4(px, py, pz, 1.0f);
+        }
+        public void ComputeCoordinatesAndNormal(int x, int y, out Vector4 Coordinates, out Vector4 Normal)
+        {
+            var gradient1 = e1.HigherPoint().Y != e1.LowerPoint().Y ? (y - e1.HigherPoint().Y) / (e1.LowerPoint().Y - e1.HigherPoint().Y) : 1;
+            var gradient2 = e2.HigherPoint().Y != e2.LowerPoint().Y ? (y - e2.HigherPoint().Y) / (e2.LowerPoint().Y - e2.HigherPoint().Y) : 1;
+
+            if (e1.vertex1.pprim.Y < e1.vertex2.pprim.Y) gradient1 = 1 - gradient1;
+            if (e2.vertex1.pprim.Y < e2.vertex2.pprim.Y) gradient2 = 1 - gradient2;
+
+            float x1 = Interpolate(e1.vertex1.pprim.X, e1.vertex2.pprim.X, gradient1);
+            float x2 = Interpolate(e2.vertex1.pprim.X, e2.vertex2.pprim.X, gradient2);
+
+            float px1 = Interpolate(e1.vertex1.pw.X, e1.vertex2.pw.X, gradient1);
+            float py1 = Interpolate(e1.vertex1.pw.Y, e1.vertex2.pw.Y, gradient1);
+            float pz1 = Interpolate(e1.vertex1.pw.Z, e1.vertex2.pw.Z, gradient1);
+
+            float px2 = Interpolate(e2.vertex1.pw.X, e2.vertex2.pw.X, gradient2);
+            float py2 = Interpolate(e2.vertex1.pw.Y, e2.vertex2.pw.Y, gradient2);
+            float pz2 = Interpolate(e2.vertex1.pw.Z, e2.vertex2.pw.Z, gradient2);
+
+            float nx1 = Interpolate(e1.vertex1.nw.X, e1.vertex2.nw.X, gradient1);
+            float ny1 = Interpolate(e1.vertex1.nw.Y, e1.vertex2.nw.Y, gradient1);
+            float nz1 = Interpolate(e1.vertex1.nw.Z, e1.vertex2.nw.Z, gradient1);
+
+            float nx2 = Interpolate(e2.vertex1.nw.X, e2.vertex2.nw.X, gradient2);
+            float ny2 = Interpolate(e2.vertex1.nw.Y, e2.vertex2.nw.Y, gradient2);
+            float nz2 = Interpolate(e2.vertex1.nw.Z, e2.vertex2.nw.Z, gradient2);
+
+            float left = x1 < x2 ? x1 : x2;
+            float right = x1 > x2 ? x1 : x2;
+
+            var gradientx = x1 != x2 ? (x - left) / (right - left) : 1;
+
+            float px = Interpolate(px1, px2, gradientx);
+            float py = Interpolate(py1, py2, gradientx);
+            float pz = Interpolate(pz1, pz2, gradientx);
+
+            float nx = Interpolate(nx1, nx2, gradientx);
+            float ny = Interpolate(ny1, ny2, gradientx);
+            float nz = Interpolate(nz1, nz2, gradientx);
+
+            Coordinates = new Vector4(px, py, pz, 1.0f);
+            Normal = new Vector4(nx, ny, nz, 0.0f);
+        }
         float Clamp(float value, float min = 0, float max = 1)
         {
             return Math.Max(min, Math.Min(value, max));

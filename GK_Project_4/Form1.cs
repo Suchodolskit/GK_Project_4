@@ -30,14 +30,18 @@ namespace GK_Project_4
         Camera ActCamera;
         Timer Rendring;
         List<Light> lights;
+        DirectionalLight dl = new DirectionalLight(new Vector3(0, 0, 0), new Vector3(1, 1, 1));
+        PointLight pl = new PointLight(new Vector3(0, 3, 0), new Vector3(1, 1, 1));
         double t = 0.0;
         float eps = 0.1f;
 
 
-        void CompositionTarget_Rendering(object sender, object e)
+        void Rendering(object sender, object e)
         {
             device.Clear(255, 0, 0, 0);
             t = t + 0.05;
+            dl.Direction = new Vector3((float)Math.Sin(t),-0.4f, (float)Math.Cos(t));
+
             meshes[4][0].Position = new Vector3(meshes[4][0].Position.X, meshes[4][0].Position.Y, meshes[4][0].Position.Z + eps);
             meshes[4][0].Rotation = new Vector3(meshes[4][0].Rotation.X + eps, meshes[4][0].Rotation.Y, meshes[4][0].Rotation.Z);
             if (meshes[4][0].Position.Z >= 4) eps = -eps;
@@ -56,7 +60,7 @@ namespace GK_Project_4
         {
             pictureBox1.Width = 640; pictureBox1.Height = 480;
             DirectBitmap bmp = new DirectBitmap(640,480);
-            device = new Device(bmp,pictureBox1,new Vector3(0,0,0));
+            device = new Device(bmp,pictureBox1,new Vector3(0,0,0),1);
 
             meshes = new Mesh[5][];
 
@@ -82,10 +86,10 @@ namespace GK_Project_4
             ActCamera = Fixedcamera;
 
             lights = new List<Light>();
-            lights.Add(new PointLight(new Vector3(0,100,1000),new Vector3(1,1,1)));
+            lights.Add(pl);
 
             Rendring = new Timer();
-            Rendring.Tick += CompositionTarget_Rendering;
+            Rendring.Tick += Rendering;
             Rendring.Interval = 50;
             Rendring.Start();
 
@@ -214,6 +218,29 @@ namespace GK_Project_4
         private void radioButton7_CheckedChanged(object sender, EventArgs e)
         {
             device.shading = 2;
+        }
+
+        private void trackBar1_Scroll(object sender, EventArgs e)
+        {
+            device.m = (sender as TrackBar).Value;
+        }
+
+        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        {
+            if ((sender as CheckBox).Checked)
+            {
+                if (!lights.Exists(l => l == dl)) { lights.Add(dl); }
+            }
+            else if (lights.Exists(l => l == dl)) { lights.Remove(dl); }
+        }
+
+        private void checkBox2_CheckedChanged(object sender, EventArgs e)
+        {
+            if ((sender as CheckBox).Checked)
+            {
+                if (!lights.Exists(l => l == pl)) { lights.Add(pl); }
+            }
+            else if (lights.Exists(l => l == pl)) { lights.Remove(pl); }
         }
     }
 }
